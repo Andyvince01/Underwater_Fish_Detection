@@ -1,9 +1,10 @@
 ''' deepfish_for_yolo.py 
 > This script is used to convert the deepfish dataset to yolo format.
 '''
-import os
-import shutil
+
+from tqdm import tqdm
 import cv2 as cv
+import os, shutil
 
 # Define the function to organize the dataset directories
 def organize_dataset_directories():
@@ -67,28 +68,10 @@ def conversion_to_yolov8_format():
         image = cv.resize(image, (640, 640))
         cv.imwrite(image_path, image)
 
-    # def convert_labels_to_yolov8_format(label_path):
-    #     '''Convert the labels to YOLOv8 format.'''
-    #     with open(label_path, 'r') as f:
-    #         lines = f.readlines()
-            
-    #     with open(label_path, 'w') as f:
-    #         for line in lines:
-    #             line = line.split()
-    #             x_center = float(line[1]) * 640
-    #             y_center = float(line[2]) * 640
-    #             width = float(line[3]) * 640
-    #             height = float(line[4]) * 640
-    #             f.write(f'{line[0]} {x_center} {y_center} {width} {height}\n')
-
     for d in ['train', 'test', 'valid']:
-        for f in ['images', 'labels']:
-            for file in os.listdir(f'{d}/{f}'):
-                file_path = os.path.join(d, f, file)
-                if file.endswith('.jpg'):
-                    convert_image_to_yolov8_format(file_path)
-                # elif file.endswith('.txt'):
-                #     convert_labels_to_yolov8_format(file_path)
+        for file in tqdm(os.listdir(f'{d}/images'), desc=f'Converting {d} images to YOLOv8 format ...', unit='files'):
+            file_path = os.path.join(d, 'images', file)
+            convert_image_to_yolov8_format(file_path)
 
 if __name__ == '__main__':
     organize_dataset_directories()
