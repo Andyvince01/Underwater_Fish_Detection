@@ -1,5 +1,5 @@
-''' deepfish_for_yolo.py 
-> This script is used to convert the deepfish dataset to yolo format.
+''' ozfish_for_yolo.py 
+> This script is used to convert the ozfish dataset to yolo format.
 '''
 
 from typing import Literal

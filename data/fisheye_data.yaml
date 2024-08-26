@@ -1,0 +1,23 @@
+# Specify the path to the yaml file containing the fisheye 'TRAIN' data
+train:
+- ../deepfish/fisheye_data.yaml
+- ../fish4knowledge/fisheye_data.yaml
+- ../ozfish/fisheye_data.yaml
+
+# Specify the path to the yaml file containing the fisheye 'VALID' data
+val:
+- ../deepfish/fisheye_data.yaml
+- ../fish4knowledge/fisheye_data.yaml
+- ../ozfish/fisheye_data.yaml
+
+# Specify the path to the yaml file containing the fisheye 'TEST' data
+test:
+- ../deepfish/fisheye_data.yaml
+- ../fish4knowledge/fisheye_data.yaml
+- ../ozfish/fisheye_data.yaml
+
+# Specify the number of classes in the dataset
+nc: 1
+
+# Specify the names of the classes in the dataset
+names: ['fish']
