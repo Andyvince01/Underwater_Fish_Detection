@@ -1,8 +1,8 @@
 # 🐠 OzFish Dataset
 
-> Australian Institute of Marine Science (AIMS), University of Western Australia (UWA) and Curtin University. (2019), OzFish Dataset - Machine learning dataset for Baited Remote Underwater Video Stations, https://doi.org/10.25845/5e28f062c5097
+> [1] Australian Institute of Marine Science (AIMS), University of Western Australia (UWA) and Curtin University. (2019), OzFish Dataset - Machine learning dataset for Baited Remote Underwater Video Stations, https://doi.org/10.25845/5e28f062c5097
 
-**OzFish** is a collection of ~80k fish crops, ~45k bounding box annotations derived from Baited Remote Underwater Video Stations (BRUVS) and comprised of 70 families, 200 genera and 507 species of fish. This dataset is completely open and free to use for advancing machine learning for the classification of fish from underwater imagery.
+**OzFish** [1] is a collection of ~80k fish crops, ~45k bounding box annotations derived from Baited Remote Underwater Video Stations (BRUVS) and comprised of 70 families, 200 genera and 507 species of fish. This dataset is completely open and free to use for advancing machine learning for the classification of fish from underwater imagery.
 
 ## ⏹️ Bounding Box Annotations
 
