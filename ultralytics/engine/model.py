@@ -9,7 +9,7 @@ import torch
 
 from ultralytics.cfg import TASK2DATA, get_cfg, get_save_dir
 from ultralytics.engine.results import Results
-from ultralytics.hub import HUB_WEB_ROOT, HUBTrainingSession
+# from ultralytics.hub import HUB_WEB_ROOT, HUBTrainingSession
 from ultralytics.nn.tasks import attempt_load_one_weight, guess_model_task, nn, yaml_model_load
 from ultralytics.utils import (
     ARGV,
@@ -123,15 +123,8 @@ class Model(nn.Module):
         self.task = task  # task type
         model = str(model).strip()
 
-        # Check if Ultralytics HUB model from https://hub.ultralytics.com
-        if self.is_hub_model(model):
-            # Fetch model from HUB
-            checks.check_requirements("hub-sdk>=0.0.8")
-            self.session = HUBTrainingSession.create_session(model)
-            model = self.session.model_file
-
         # Check if Triton Server model
-        elif self.is_triton_model(model):
+        if self.is_triton_model(model):
             self.model_name = self.model = model
             return
 
@@ -196,40 +189,6 @@ class Model(nn.Module):
 
         url = urlsplit(model)
         return url.netloc and url.path and url.scheme in {"http", "grpc"}
-
-    @staticmethod
-    def is_hub_model(model: str) -> bool:
-        """
-        Check if the provided model is an Ultralytics HUB model.
-
-        This static method determines whether the given model string represents a valid Ultralytics HUB model
-        identifier. It checks for three possible formats: a full HUB URL, an API key and model ID combination,
-        or a standalone model ID.
-
-        Args:
-            model (str): The model identifier to check. This can be a URL, an API key and model ID
-                combination, or a standalone model ID.
-
-        Returns:
-            (bool): True if the model is a valid Ultralytics HUB model, False otherwise.
-
-        Examples:
-            >>> Model.is_hub_model("https://hub.ultralytics.com/models/example_model")
-            True
-            >>> Model.is_hub_model("api_key_example_model_id")
-            True
-            >>> Model.is_hub_model("example_model_id")
-            True
-            >>> Model.is_hub_model("not_a_hub_model.pt")
-            False
-        """
-        return any(
-            (
-                model.startswith(f"{HUB_WEB_ROOT}/models/"),  # i.e. https://hub.ultralytics.com/models/MODEL_ID
-                [len(x) for x in model.split("_")] == [42, 20],  # APIKEY_MODEL
-                len(model) == 20 and not Path(model).exists() and all(x not in model for x in "./\\"),  # MODEL
-            )
-        )
 
     def _new(self, cfg: str, task=None, model=None, verbose=False) -> None:
         """
@@ -808,7 +767,7 @@ class Model(nn.Module):
             self.trainer.model = self.trainer.get_model(weights=self.model if self.ckpt else None, cfg=self.model.yaml)
             self.model = self.trainer.model
 
-        self.trainer.hub_session = self.session  # attach optional HUB session
+        # self.trainer.hub_session = self.session  # attach optional HUB session
         self.trainer.train()
         # Update model and cfg after training
         if RANK in {-1, 0}:

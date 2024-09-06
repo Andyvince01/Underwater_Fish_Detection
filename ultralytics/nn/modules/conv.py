@@ -336,7 +336,7 @@ class Concat(nn.Module):
 '''⭐ NEW MODULES ⭐'''
 class SPDConv(nn.Module):
     ''' 
-    This class implements the SPD-Conv block. 
+    This class implements the SPD-Conv block [1].
     
     References
     ----------
@@ -379,7 +379,7 @@ class SPDConv(nn.Module):
 
             Parameters
             ----------
-            x : torch.Tensor
+            `x` : torch.Tensor
                 The input tensor.
 
             Returns
@@ -398,7 +398,7 @@ class SPDConv(nn.Module):
             # Reshape the input tensor to perform the Space-to-Depth operation
             x = x.view(B, C, H // self.block_size, self.block_size, W // self.block_size, self.block_size)
             
-            # Permute the dimensions of the input tensor (B, C, H // block_size, block_size, W // block_size, block_size) -> (B, C, block_size, block_size, H // block_size, W // block_size)
+            # Permute the dimensions of the input tensor (B, C, H // block_size, block_size, W // block_size, block_size) -> (B, block_size, H // block_size, C, block_size, W // block_size)
             x = x.permute(0, 5, 3, 1, 2, 4)
 
             # Contiguous the tensor for memory optimization
