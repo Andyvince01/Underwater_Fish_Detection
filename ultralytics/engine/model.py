@@ -24,7 +24,6 @@ from ultralytics.utils import (
     yaml_load,
 )
 
-
 class Model(nn.Module):
     """
     A base class for implementing YOLO models, unifying APIs across different model types.
@@ -121,6 +120,8 @@ class Model(nn.Module):
         self.metrics = None  # validation/training metrics
         self.session = None  # HUB session
         self.task = task  # task type
+        
+        # Load or create new model
         model = str(model).strip()
 
         # Check if Triton Server model
@@ -342,7 +343,7 @@ class Model(nn.Module):
         if isinstance(weights, (str, Path)):
             self.overrides["pretrained"] = weights  # remember the weights for DDP training
             weights, self.ckpt = attempt_load_one_weight(weights)
-        self.model.load(weights)
+        self.model.load(weights) if not isinstance(self.model, nn.Sequential) else self.model[1].load(weights)      # ⭐ NEW ⭐
         return self
 
     def save(self, filename: Union[str, Path] = "saved_model.pt", use_dill=True) -> None:
@@ -764,7 +765,7 @@ class Model(nn.Module):
 
         self.trainer = (trainer or self._smart_load("trainer"))(overrides=args, _callbacks=self.callbacks)
         if not args.get("resume"):  # manually set model only if not resuming
-            self.trainer.model = self.trainer.get_model(weights=self.model if self.ckpt else None, cfg=self.model.yaml)
+            self.trainer.model = self.trainer.get_model(weights=self.model[1] if self.ckpt else None, cfg=self.model[1].yaml)
             self.model = self.trainer.model
 
         # self.trainer.hub_session = self.session  # attach optional HUB session

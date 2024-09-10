@@ -1,12 +1,20 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 
 from pathlib import Path
+from typing import List, Union
+
+import numpy as np
 
 from ultralytics.engine.model import Model
+from ultralytics.engine.results import Results
 from ultralytics.models import yolo
 from ultralytics.nn.tasks import ClassificationModel, DetectionModel, OBBModel, PoseModel, SegmentationModel, WorldModel
 from ultralytics.utils import ROOT, yaml_load
 
+from ultralytics.funiegan import GeneratorFunieGAN as FunieGAN, FUNIEGAN_DIR
+
+import torch
+import torch.nn as nn
 
 class YOLO(Model):
     """YOLO (You Only Look Once) object detection model."""
@@ -58,6 +66,77 @@ class YOLO(Model):
             },
         }
 
+""" ⭐ NEW ⭐ - YOLO-GAN model """
+class YOLOGAN(YOLO):
+    ''' YOLO-GAN object detection model. '''
+    
+    def __init__(self, model="yolov8n.pt", freeze = True, verbose=False):
+        ''' Initialize the YOLO-GAN model. '''
+        super().__init__(model=model, task="detect", verbose=verbose)
+    
+        # Initialize the FunieGAN model
+        funiegan = FunieGAN()
+
+        # Load the pre-trained FunieGAN model
+        funiegan.load_state_dict(torch.load(FUNIEGAN_DIR))
+        
+        for param in funiegan.parameters():
+            param.requires_grad = not freeze
+            
+        # Pipelining the FunieGAN model with the YOLO model
+        self.model = nn.Sequential(funiegan, self.model)
+                        
+    def predict(
+        self,
+        source: Union[str, Path, int, list, tuple, np.ndarray, torch.Tensor] = None,
+        stream: bool = False,
+        predictor=None,
+        **kwargs,
+    ) -> List[Results]:
+        ''' Overriding the predict method to include the FunieGAN model. '''
+        
+        # Apply the FunieGAN model to the source
+        
+                
+        # Return the results
+        return super().predict(source=source, stream=stream, predictor=predictor, **kwargs)
+                
+    @property
+    def task_map(self):
+        """ Map head to model, trainer, validator, and predictor classes. """
+        return {
+            "classify": {
+                "model": ClassificationModel,
+                "trainer": yolo.classify.ClassificationTrainer,
+                "validator": yolo.classify.ClassificationValidator,
+                "predictor": yolo.classify.ClassificationPredictor,
+            },
+            "detect": {
+                "model": DetectionModel,
+                "trainer": yolo.detect.DetectionTrainer,
+                "validator": yolo.detect.DetectionValidator,
+                "predictor": yolo.detect.DetectionPredictor,
+            },
+            "segment": {
+                "model": SegmentationModel,
+                "trainer": yolo.segment.SegmentationTrainer,
+                "validator": yolo.segment.SegmentationValidator,
+                "predictor": yolo.segment.SegmentationPredictor,
+            },
+            "pose": {
+                "model": PoseModel,
+                "trainer": yolo.pose.PoseTrainer,
+                "validator": yolo.pose.PoseValidator,
+                "predictor": yolo.pose.PosePredictor,
+            },
+            "obb": {
+                "model": OBBModel,
+                "trainer": yolo.obb.OBBTrainer,
+                "validator": yolo.obb.OBBValidator,
+                "predictor": yolo.obb.OBBPredictor,
+            },
+        }
+        
 
 class YOLOWorld(Model):
     """YOLO-World object detection model."""

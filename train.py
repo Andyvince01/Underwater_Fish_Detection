@@ -3,7 +3,7 @@
 '''
 
 import argparse, os
-from ultralytics import YOLO
+from ultralytics import YOLOGAN
 
 # Define the directories for the fisheye-scale dataset and the weights
 FISHSCALE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'fishscale_data.yaml')
@@ -27,13 +27,15 @@ def train(model : str = 'yolov8', weights : str = 'yolov8n.pt', **settings):
         For example: {'batch_size': 64, 'epochs': 100, 'learning_rate': 0.001}.
     '''
     # Load the model and the weights
-    yolo = YOLO(model).load(weights)
+    yolo = YOLOGAN(model).load(weights)
+
+    print(yolo)
 
     # Train the model
     yolo.train(data=FISHSCALE_DIR, **settings)
 
     # Save the trained model
-    yolo.save(os.path.join(WEIGHTS_DIR, f'{model}_trained.pt'))
+    # yolo.save(os.path.join(WEIGHTS_DIR, f'{model}_trained.pt'))
 
 if __name__ == '__main__':
     # Define the command line arguments
@@ -42,7 +44,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--model', 
         type=str, 
-        default='yolov8n-p2-SPD', 
+        default='yolov8n', 
         help='The model to train (default: yolov8n). It is assumed that the model is in \'ultralytics/cfg/models/v8/\' directory.', 
         choices=['yolov8', 'yolov8-p2', 'yolov8-p2-SPD', 'yolov8-p2-CBAM', 'yolov8-FishScale']
     )
