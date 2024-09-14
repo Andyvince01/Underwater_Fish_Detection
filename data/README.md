@@ -1,6 +1,6 @@
 # 🐟 **Fishscale Dataset**
 
-Welcome to the **Fishscale Dataset**! This dataset has been crafted to support the training and evaluation of fish detection models using `YOLOv8`. Here's a detailed overview of what you need to know about it.
+Welcome to the **Fishscale Dataset** 🐠! This dataset has been crafted to support the training and evaluation of fish detection models using `YOLOv8`. Here's a detailed overview of what you need to know about it.
 
 ## 📜 **Dataset Overview**
 
