@@ -10,7 +10,7 @@ Ultimately, a tracking algorithm—**`ByteTrack`**—will be integrated into the
 
 |        | P2-Head | SPD-Conv | CBAM | mAP@50 | mAP50-95 | FPS |
 | ---    | ---     | ---      | ---  | ---    | ---      | --- |
-| YOLOv8 |  ❌       | ❌          | ❌     |        |          |     |
-| YOLOv8-p2 | ✔️     | ❌         |  ❌    |        |          |     |
-| YOLOv8-p2 with SPD-Conv | ✔️     | ✔️       | ❌     |        |          |     |
-| **YOLOFishScale** | ✔️     | ✔️       |✔️   |        |          |     |
+| `YOLOv8` |  ❌       | ❌          | ❌     |        |          |     |
+| `YOLOv8-p2` | ✔️     | ❌         |  ❌    |        |          |     |
+| `YOLOv8-p2 with SPD-Conv` | ✔️     | ✔️       | ❌     |        |          |     |
+| **`YOLO-FishScale`** | ✔️     | ✔️       |✔️   |        |          |     |
