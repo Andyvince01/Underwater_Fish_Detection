@@ -102,7 +102,7 @@ def size_distribution(folder : str = "train", save : bool = True) -> None:
     if not save: return
     
     # Save the plot as a PNG file
-    fig.savefig(f"../{folder}_size_distribution.pdf", dpi=360)
+    fig.savefig(f"../utils/{folder}_size_distribution.pdf", dpi=360)
     
 if __name__ == "__main__":
     size_distribution(folder='train', save=True)
