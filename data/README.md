@@ -60,4 +60,4 @@ For detailed information about the dataset and its usage, please refer to:
 [4] A. A. Muksit, F. Hasan, M. F. Hasan Bhuiyan Emon, M. R. Haque, A. R. Anwary, and S. Shatabda, “Yolo-fish: A robust fish detection model to detect fish in realistic underwater environment,” Ecological Informatics, vol. 72, p. 101847, 2022. [doi:10.1016/j.ecoinf.2022.101847](https://doi.org/10.1016/j.ecoinf.2022.101847).
 
 
-Happy training! 🎣
+**Happy training! 🎣**
