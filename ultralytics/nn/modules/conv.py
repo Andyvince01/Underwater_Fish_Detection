@@ -21,6 +21,7 @@ __all__ = (
     "CBAM",
     "Concat",
     "RepConv",
+    "SpaceToDepth",          # ⭐ NEW MODULE ⭐
     "SPDConv",              # ⭐ NEW MODULE ⭐
 )
 
@@ -151,7 +152,15 @@ class Focus(nn.Module):
 
         Input shape is (b,c,w,h) and output shape is (b,4c,w/2,h/2).
         """
-        return self.conv(torch.cat((x[..., ::2, ::2], x[..., 1::2, ::2], x[..., ::2, 1::2], x[..., 1::2, 1::2]), 1))
+        return self.conv(
+            torch.cat((
+                x[..., ::2, ::2],           # top-left
+                x[..., 1::2, ::2],          # top-right
+                x[..., ::2, 1::2],          # bottom-left
+                x[..., 1::2, 1::2]),        # bottom-right
+                1                           # concatenate along channel dimension   
+            )
+        )
         # return self.conv(self.contract(x))
 
 
@@ -331,9 +340,12 @@ class Concat(nn.Module):
 
     def forward(self, x):
         """Forward pass for the YOLOv8 mask Proto module."""
+        # print(f"Concatenating {x[0].size()} and {x[1].size()} along dimension {self.d}")
         return torch.cat(x, self.d)
 
 '''⭐ NEW MODULES ⭐'''
+
+''' SPDConv Class '''
 class SPDConv(nn.Module):
     ''' 
     This class implements the SPD-Conv block [1].
@@ -353,73 +365,56 @@ class SPDConv(nn.Module):
     >>> # Output shape: torch.Size([1, 64, 16, 16])
     '''
         
-    def __init__(self, in_channels : int, out_channels : int, kernel_size : int = 1, stride : int = 1, scale : int = 2, debug : bool = False):
+    def __init__(self, in_channels : int, out_channels : int, kernel : int = 3, stride : int = 1, padding : int = None, scale : int = 2, debug : bool = False):
         ''' This function initializes the SPD-Conv block.'''
         super(SPDConv, self).__init__()
-        self.space_to_depth = self.SpaceToDepth(block_size=scale, debug=debug)
-        self.conv = nn.Conv2d(in_channels=in_channels * (scale ** 2), out_channels=out_channels, kernel_size=kernel_size, stride=stride)
+        self.conv = Conv(c1=in_channels, c2=out_channels, k=kernel, s=stride, p=padding, act=True)
+        self.space_to_depth = SpaceToDepth(scale=scale, debug=debug)
         
     def forward(self, x : torch.Tensor) -> torch.Tensor:
         ''' This function performs the forward pass of the SPD-Conv block. '''
+        # Perform the Space-to-Depth operation
         x = self.space_to_depth(x)
+        # Perform the convolution operation
         x = self.conv(x)
+        # Return the output tensor
         return x
     
-    ''' SpaceToDepth Inner Class '''    
-    class SpaceToDepth(nn.Module):
-        '''This class implements the Space-to-Depth operation. '''
-        def __init__(self, block_size : int, debug : bool = False):
-            '''This function initializes the Space-to-Depth operation. '''
-            super(SPDConv.SpaceToDepth, self).__init__()
-            self.block_size = block_size
-            self.debug = debug
+''' SpaceToDepth Inner Class '''    
+class SpaceToDepth(nn.Module):
+    '''This class implements the Space-to-Depth operation. '''
+    def __init__(self, dimension : int = 1):
+        '''This function initializes the Space-to-Depth operation. '''
+        super(SpaceToDepth, self).__init__()
+        self.d = dimension
 
-        def forward(self, x : torch.Tensor) -> torch.Tensor:
-            '''This function performs the Space-to-Depth operation on the input tensor.
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
+        '''This function performs the Space-to-Depth operation on the input tensor.
 
-            Parameters
-            ----------
-            `x` : torch.Tensor
-                The input tensor.
+        Parameters
+        ----------
+        `x` : torch.Tensor
+            The input tensor.
 
-            Returns
-            -------
-            torch.Tensor
-                The output tensor after performing the Space-to-Depth operation.
-                
-            References
-            ----------
-            [1] Sunkara, R.; Luo, T. No More Strided Convolutions or Pooling: A New CNN Building Block for Low-Resolution Images and Small Objects. 
-                arXiv 2022, arXiv:2208.03641. https://doi.org/10.48550/arXiv.2208.03641
-            '''
-            # Get the dimensions of the input tensor (B: batch size, C: number of channels, H: height, W: width)
-            B, C, H, W = x.size()
-                        
-            # Reshape the input tensor to perform the Space-to-Depth operation
-            x = x.view(B, C, H // self.block_size, self.block_size, W // self.block_size, self.block_size)
+        Returns
+        -------
+        torch.Tensor
+            The output tensor after performing the Space-to-Depth operation.
             
-            # Permute the dimensions of the input tensor (B, C, H // block_size, block_size, W // block_size, block_size) -> (B, block_size, H // block_size, C, block_size, W // block_size)
-            x = x.permute(0, 5, 3, 1, 2, 4)
-
-            # Contiguous the tensor for memory optimization
-            x = x.contiguous()
-            
-            # Reshape the tensor to the output shape (B, C * (block_size ** 2), H // block_size, W // block_size)
-            x = x.view(B, C * (self.block_size ** 2), H // self.block_size, W // self.block_size)
-            
-            # Print the shape of the output tensor
-            print(x.shape) if self.debug else None
-            
-            return x
+        References
+        ----------
+        [1] Sunkara, R.; Luo, T. No More Strided Convolutions or Pooling: A New CNN Building Block for Low-Resolution Images and Small Objects. 
+            arXiv 2022, arXiv:2208.03641. https://doi.org/10.48550/arXiv.2208.03641
+        '''                   
+        return torch.cat(
+            (
+                x[..., ::2, ::2],         # top-left
+                x[..., 1::2, ::2],        # top-right
+                x[..., ::2, 1::2],        # bottom-left
+                x[..., 1::2, 1::2]        # bottom-right
+            ),  1                         # concatenate along channel dimension   
+        )
         
-# class space_to_depth(nn.Module):
-#     # Changing the dimension of the Tensor
-#     def __init__(self, dimension=1):
-#         super().__init__()
-#         self.d = dimension
-
-#     def forward(self, x):
-#         return torch.cat([x[..., ::2, ::2], x[..., 1::2, ::2], x[..., ::2, 1::2], x[..., 1::2, 1::2]], 1)
 
 # if __name__ == '__main__':
 #     spd_conv_block = SPDConv(in_channels=3, out_channels=64, kernel_size=1, scale=2, stride=1, debug=True)

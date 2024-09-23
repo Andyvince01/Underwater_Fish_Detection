@@ -90,21 +90,27 @@ def testing_loop():
 ## simple test
 def simple_test(image):
     import matplotlib.pyplot as plt
-    
+    import time 
+        
     img = Image.open(image)
     
     inp_img = transform(img)
-    inp_img = Variable(inp_img).type(Tensor).unsqueeze(0)
+    inp_img = torch.unsqueeze(inp_img, 0).to('cuda')
     # generate enhanced image
+    start = time.time()
     gen_img = model(inp_img)[0].cpu().detach().numpy()
+    end = time.time()
     
+    print("Time taken: ", end-start)
     gen_img = 0.5 * gen_img + 0.5
-    
+        
     inp_img2 = transform2(img)
-    inp_img2 = Variable(inp_img2).type(Tensor).unsqueeze(0)
+    inp_img2 = torch.unsqueeze(inp_img2, 0).to('cuda')
     # generate enhanced image
+    start = time.time()
     gen_img2 = model(inp_img2)[0].cpu().detach().numpy()
-    
+    end = time.time()
+    print("Time taken: ", end-start)
     gen_img2 = 0.5 * gen_img2 + 0.5
 
     # Show output
@@ -119,7 +125,7 @@ def simple_test(image):
     plt.imshow(np.transpose(gen_img2, (1,2,0)))
     plt.title("Enhanced Image 2")
     plt.show()
-    
+        
 ## main
 if __name__ == '__main__':
     # testing_loop()

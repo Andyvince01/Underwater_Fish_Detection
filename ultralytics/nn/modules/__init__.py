@@ -67,6 +67,7 @@ from .conv import (
     GhostConv,
     LightConv,
     RepConv,
+    SpaceToDepth,       # ⭐ NEW MODULE ⭐
     SPDConv,            # ⭐ NEW MODULE ⭐
     SpatialAttention,
 )
@@ -84,6 +85,10 @@ from .transformer import (
     TransformerLayer,
 )
 
+from .funiegan import FunieGAN      # ⭐ NEW MODULE ⭐
+from .uie_dm import UieDM           # ⭐ NEW MODULE ⭐
+
+# Define the __all__ variable to include all the modules
 __all__ = (
     "Conv",
     "Conv2",
@@ -151,5 +156,8 @@ __all__ = (
     "Attention",
     "PSA",
     "SCDown",
+    "SpaceToDepth",     # ⭐ NEW MODULE ⭐
     "SPDConv",          # ⭐ NEW MODULE ⭐
+    "FunieGAN",         # ⭐ NEW MODULE ⭐
+    "UieDM",            # ⭐ NEW MODULE ⭐
 )

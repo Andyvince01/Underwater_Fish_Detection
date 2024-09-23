@@ -961,7 +961,7 @@ class SettingsManager(dict):
             "settings_version": version,
             "datasets_dir": str(datasets_root / "datasets"),
             "weights_dir": str(root / "weights"),
-            "runs_dir": str(root / "runs"),
+            "runs_dir": str(root / "models" / "runs"),
             "uuid": hashlib.sha256(str(uuid.getnode()).encode()).hexdigest(),
             "sync": True,
             "api_key": "",

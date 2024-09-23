@@ -70,19 +70,21 @@ class YOLO(Model):
 class YOLOGAN(YOLO):
     ''' YOLO-GAN object detection model. '''
     
-    def __init__(self, model="yolov8n.pt", freeze = True, verbose=False):
+    def __init__(self, model="yolov8n.pt", freeze_gan : bool = True, apply_funiegan : bool = True, verbose=False):
         ''' Initialize the YOLO-GAN model. '''
         super().__init__(model=model, task="detect", verbose=verbose)
     
-        # Initialize the FunieGAN model
+        # self.apply_funiegan = apply_funiegan
+    
+        # # Initialize the FunieGAN model
         funiegan = FunieGAN()
 
-        # Load the pre-trained FunieGAN model
-        funiegan.load_state_dict(torch.load(FUNIEGAN_DIR))
+        # # Load the pre-trained FunieGAN model
+        # funiegan.load_state_dict(torch.load(FUNIEGAN_DIR))
         
-        for param in funiegan.parameters():
-            param.requires_grad = not freeze
-            
+        # for param in funiegan.parameters():
+        #     param.requires_grad = not freeze_gan and apply_funiegan
+                        
         # Pipelining the FunieGAN model with the YOLO model
         self.model = nn.Sequential(funiegan, self.model)
                         
@@ -94,10 +96,13 @@ class YOLOGAN(YOLO):
         **kwargs,
     ) -> List[Results]:
         ''' Overriding the predict method to include the FunieGAN model. '''
-        
+
         # Apply the FunieGAN model to the source
+        if self.apply_funiegan:
+            print("APPYING FUNIEGAN")
+            source = self.model[0](source)
         
-                
+        print("PREDICTING")
         # Return the results
         return super().predict(source=source, stream=stream, predictor=predictor, **kwargs)
                 

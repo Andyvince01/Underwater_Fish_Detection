@@ -39,6 +39,7 @@ from ultralytics.nn.modules import (
     DWConv,
     DWConvTranspose2d,
     Focus,
+    FunieGAN,           # ⭐ NEW MODULE ⭐
     GhostBottleneck,
     GhostConv,
     HGBlock,
@@ -53,7 +54,9 @@ from ultralytics.nn.modules import (
     RTDETRDecoder,
     SCDown,
     Segment,
+    SpaceToDepth,       # ⭐ NEW MODULE ⭐
     SPDConv,            # ⭐ NEW MODULE ⭐
+    UieDM,              # ⭐ NEW MODULE ⭐
     WorldDetect,
     v10Detect,
 )
@@ -262,9 +265,22 @@ class BaseModel(nn.Module):
             weights (dict | torch.nn.Module): The pre-trained weights to be loaded.
             verbose (bool, optional): Whether to log the transfer progress. Defaults to True.
         """
+        def adjust_keys(d, score=1):
+            """Adjusts the keys in the dictionary by incrementing the module index."""
+            import re
+            return {re.sub(r'(\d+)', lambda x: str(int(x.group(1)) + score), k, count=1): v for k, v in d.items()}
+                
         model = weights["model"] if isinstance(weights, dict) else weights  # torchvision models are not dicts
         csd = model.float().state_dict()  # checkpoint state_dict as FP32
-        csd = intersect_dicts(csd, self.state_dict())  # intersect
+        
+        # Save on file .txt if not exists create
+        # import os       
+        # with open('model.txt', 'a') as f:
+        #     f.write(str(csd))
+        #     f.write('\n')            
+        
+        csd = intersect_dicts(adjust_keys(csd), self.state_dict())  # intersect
+                    
         self.load_state_dict(csd, strict=False)  # load
         if verbose:
             LOGGER.info(f"Transferred {len(csd)}/{len(self.model.state_dict())} items from pretrained weights")
@@ -983,6 +999,10 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         elif m is CBFuse:
             c2 = ch[f[-1]]
             args = [c1, c2, *args[1:]]
+        elif m is SpaceToDepth:
+            c2 = ch[f] * 4
+        elif m in {FunieGAN, UieDM}:
+            c2 = ch[f]
         else:
             c2 = ch[f]
 

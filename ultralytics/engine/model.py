@@ -248,8 +248,9 @@ class Model(nn.Module):
         """
         if weights.lower().startswith(("https://", "http://", "rtsp://", "rtmp://", "tcp://")):
             weights = checks.check_file(weights, download_dir=SETTINGS["weights_dir"])  # download and return local file
+        
         weights = checks.check_model_file_from_stem(weights)  # add suffix, i.e. yolov8n -> yolov8n.pt
-
+        
         if Path(weights).suffix == ".pt":
             self.model, self.ckpt = attempt_load_one_weight(weights)
             self.task = self.model.args["task"]
@@ -343,7 +344,7 @@ class Model(nn.Module):
         if isinstance(weights, (str, Path)):
             self.overrides["pretrained"] = weights  # remember the weights for DDP training
             weights, self.ckpt = attempt_load_one_weight(weights)
-        self.model.load(weights) if not isinstance(self.model, nn.Sequential) else self.model[1].load(weights)      # ⭐ NEW ⭐
+        self.model.load(weights)
         return self
 
     def save(self, filename: Union[str, Path] = "saved_model.pt", use_dill=True) -> None:
@@ -750,9 +751,10 @@ class Model(nn.Module):
                 LOGGER.warning("WARNING ⚠️ using HUB training arguments, ignoring local training arguments.")
             kwargs = self.session.train_args  # overwrite kwargs
 
-        checks.check_pip_update_available()
+        # checks.check_pip_update_available()
 
         overrides = yaml_load(checks.check_yaml(kwargs["cfg"])) if kwargs.get("cfg") else self.overrides
+        
         custom = {
             # NOTE: handle the case when 'cfg' includes 'data'.
             "data": overrides.get("data") or DEFAULT_CFG_DICT["data"] or TASK2DATA[self.task],
@@ -764,9 +766,11 @@ class Model(nn.Module):
             args["resume"] = self.ckpt_path
 
         self.trainer = (trainer or self._smart_load("trainer"))(overrides=args, _callbacks=self.callbacks)
-        if not args.get("resume"):  # manually set model only if not resuming
-            self.trainer.model = self.trainer.get_model(weights=self.model[1] if self.ckpt else None, cfg=self.model[1].yaml)
-            self.model = self.trainer.model
+        
+        print("RANK", RANK)                
+        # if not args.get("resume"):  # manually set model only if not resuming
+        #     self.trainer.model = self.trainer.get_model(weights=self.model if self.ckpt else None, cfg=self.model.yaml)
+        #     self.model = self.trainer.model
 
         # self.trainer.hub_session = self.session  # attach optional HUB session
         self.trainer.train()
