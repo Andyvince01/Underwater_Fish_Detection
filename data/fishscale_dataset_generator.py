@@ -8,11 +8,11 @@ import cv2 as cv
 import os, shutil, random
 
 # Set the working directory
-os.chdir('data/') if os.getcwd().split('/')[-1] != 'data' else None
+os.chdir('Underwater_Fish_Detection/data/') if os.getcwd().split('/')[-1] != 'data' else None
 
 # Create 'images' and 'labels' directories in fishscale_data
-os.makedirs('fishscale_dataset/images', exist_ok=True)
-os.makedirs('fishscale_dataset/labels', exist_ok=True)
+# os.makedirs('fishscale_dataset/images', exist_ok=True)
+# os.makedirs('fishscale_dataset/labels', exist_ok=True)
 
 os.makedirs('fishscale_dataset/test', exist_ok=True)
 os.makedirs('fishscale_dataset/test/images', exist_ok=True)
@@ -136,4 +136,15 @@ def dataset_generator(test_set_generator : bool = False) -> None:
     
 if __name__ == '__main__':
     # copy_datasets(flag=False)
-    dataset_generator(test_set_generator=False)
+    # dataset_generator(test_set_generator=False)
+    
+    print(len(os.listdir(os.path.join(os.getcwd(), 'fishscale_dataset/train/images/'))))
+    print(len(os.listdir(os.path.join(os.getcwd(), 'fishscale_dataset/train/labels/'))))
+    
+    print(len(os.listdir(os.path.join(os.getcwd(), 'fishscale_dataset/valid/images/'))))
+    print(len(os.listdir(os.path.join(os.getcwd(), 'fishscale_dataset/valid/labels/'))))
+
+    print(len(os.listdir(os.path.join(os.getcwd(), 'fishscale_dataset/test/images/'))))
+    print(len(os.listdir(os.path.join(os.getcwd(), 'fishscale_dataset/test/labels/'))))
+
+    
