@@ -21,9 +21,7 @@ class FunieGAN(nn.Module):
         self.generator.load_state_dict(torch.load(weights)) if weights else None
         
     def forward(self, x):
-        print(x.size())
-        print(type(x))
-        return x
+        return self.generator(x)
 
 # Generator network
 class GeneratorFunieGAN(nn.Module):

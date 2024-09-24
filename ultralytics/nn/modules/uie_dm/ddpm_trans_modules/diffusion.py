@@ -268,104 +268,49 @@ class GaussianDiffusion(nn.Module):
 
         return x_prev
 
+    @torch.no_grad()
     def p_sample_ddim2(self, x, t, t_next, clip_denoised=True, repeat_noise=False, condition_x=None, style=None):
-        b, *_, device = *x.shape, x.device
-        bt = extract(self.betas, t, x.shape)
         at = extract((1.0 - self.betas).cumprod(dim=0), t, x.shape)
 
-        if condition_x is not None:
-            et = self.denoise_fn(torch.cat([condition_x, x], dim=1), t)
-        else:
-            et = self.denoise_fn(x, t)
-
+        # Denoise function with or without condition
+        et = self.denoise_fn(torch.cat([condition_x, x], dim=1), t) if condition_x is not None else self.denoise_fn(x, t)
 
         x0_t = (x - et * (1 - at).sqrt()) / at.sqrt()
-        # x0_air_t = (x_air - et_air * (1 - at).sqrt()) / at.sqrt()
-        if t_next == None:
-            at_next = torch.ones_like(at)
-        else:
-            at_next = extract((1.0 - self.betas).cumprod(dim=0), t_next, x.shape)
+        
+        at_next = torch.ones_like(at) if t_next is None else extract((1.0 - self.betas).cumprod(dim=0), t_next, x.shape)
+
         if self.eta == 0:
             xt_next = at_next.sqrt() * x0_t + (1 - at_next).sqrt() * et
-            # xt_air_next = at_next.sqrt() * x0_air_t + (1 - at_next).sqrt() * et_air
-        elif at > (at_next):
-            print('Inversion process is only possible with eta = 0')
-            raise ValueError
+        elif at > at_next:
+            raise ValueError('Inversion process is only possible with eta = 0')
         else:
-            c1 = self.eta * ((1 - at / (at_next)) * (1 - at_next) / (1 - at)).sqrt()
+            c1 = self.eta * ((1 - at / at_next) * (1 - at_next) / (1 - at)).sqrt()
             c2 = ((1 - at_next) - c1 ** 2).sqrt()
             xt_next = at_next.sqrt() * x0_t + c2 * et + c1 * torch.randn_like(x0_t)
-            # xt_air_next = at_next.sqrt() * x0_air_t + c2 * et_air + c1 * torch.randn_like(x0_t)
-
-        # noise = noise_like(x.shape, device, repeat_noise)
-        # no noise when t == 0
 
         return xt_next
 
     @torch.no_grad()
     def p_sample_loop(self, x_in, continous=False, cand=None):
         device = self.betas.device
-        sample_inter = 2
         g_gpu = torch.Generator(device=device).manual_seed(44444)
-        if not self.conditional:
-            x = x_in['SR']
-            shape = x.shape
-            b = shape[0]
-            img = torch.randn(shape, device=device, generator=g_gpu)
-            ret_img = img
-            if cand is not None:
-                time_steps = np.array(cand)
-            else:
-                num_timesteps_ddim = np.array([0, 245, 521, 1052, 1143, 1286, 1475, 1587, 1765, 1859])  # searching
-                time_steps = np.flip(num_timesteps_ddim)
-            for j, i in enumerate(tqdm(time_steps, desc='sampling loop time step', total=len(time_steps))):
-                # print('i = ', i)
-                t = torch.full((b,), i, device=device, dtype=torch.long)
-                if j == len(time_steps) - 1:
-                    t_next = None
-                else:
-                    t_next = torch.full((b,), time_steps[j + 1], device=device, dtype=torch.long)
-                img = self.p_sample_ddim2(img, t, t_next, style=x_in['style'])
-                if i % sample_inter == 0:
-                    ret_img = torch.cat([ret_img, img], dim=0)
-            return img
-        else:
-            x = x_in
-            shape = x.shape
-            b = shape[0]
-            img = torch.randn(shape, device=device, generator=g_gpu)
-            ret_img = x
+        x = x_in  # When conditional is True, x_in is already the input
+        shape = x.shape
+        b = shape[0]
+        img = torch.randn(shape, device=device, generator=g_gpu)
+        ret_img = x  # Start with the original input
 
-            if self.sample_proc == 'ddpm':
-                for i in tqdm(reversed(range(0, self.num_timesteps)), desc='sampling loop time step', total=self.num_timesteps):
-                    # print('i = ', i)
-                    img = self.p_sample(img, torch.full(
-                        (b,), i, device=device, dtype=torch.long), condition_x=x)
-                    if i % sample_inter == 0:
-                        ret_img = torch.cat([ret_img, img], dim=0)
-            else:
-                if cand is not None:
-                    time_steps = np.array(cand)
-                    # print(time_steps)
-                else:
-                    time_steps = np.array([1898, 1640, 1539, 1491, 1370, 1136, 972, 858, 680, 340])
-                    # time_steps = np.asarray(list(range(0, 1000, int(1000/4))) + list(range(1000, 2000, int(1000/6))))
-                    # time_steps = np.flip(time_steps[:-1])
-                for j, i in enumerate(time_steps):
-                    # print('i = ', i)
-                    t = torch.full((b,), i, device=device, dtype=torch.long)
-                    if j == len(time_steps) - 1:
-                        t_next = None
-                    else:
-                        t_next = torch.full((b,), time_steps[j + 1], device=device, dtype=torch.long)
-                    img = self.p_sample_ddim2(img, t, t_next, condition_x=x, style=None)
-                    ret_img = img
-                    # if i % sample_inter == 0:
-                    #     ret_img = torch.cat([ret_img, img], dim=0)
-        if continous:
-            return ret_img
-        else:
-            return ret_img[-1]
+        # Define time steps based on user input or predefined values
+        full_time_steps = np.array(cand) if cand is not None else np.array([1898, 1640, 1539, 1491, 1370, 1136, 972, 858, 680, 340])
+        time_steps = full_time_steps[::10]
+        # Iterate over time steps to sample images
+        for j, i in enumerate(time_steps):
+            t = torch.full((b,), i, device=device, dtype=torch.long)
+            t_next = None if j == len(time_steps) - 1 else torch.full((b,), time_steps[j + 1], device=device, dtype=torch.long)
+            img = self.p_sample_ddim2(img, t, t_next, condition_x=x, style=None)
+            ret_img = img  # Update ret_img to the current img
+
+        return ret_img if continous else ret_img[-1]
 
     @torch.no_grad()
     def sample(self, batch_size=1, continous=False):

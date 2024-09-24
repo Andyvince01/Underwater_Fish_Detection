@@ -50,6 +50,8 @@ def test(model : Model, source : Union[str, list]):
             # Test the model
             start = time.time()
             enhanced_image = model.test(continous=False)
+            print("Image type: ", type(enhanced_image))
+            print("Image dtype: ", enhanced_image.dtype)
             end = time.time()
             print('Execution time:', (end - start), 'seconds')
             # Append the enhanced image to the list
