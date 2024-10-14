@@ -1,6 +1,4 @@
 # 🐠 Underwater Fish Detection
 
-__version__ = "1.0.0"
-
-
-from utils import ParseKwargs, FISHSCALE_DIR
+#--- Define the version of the package ---#
+__version__ = "3.0.0"
