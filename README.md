@@ -4,6 +4,9 @@ Freshwater ecosystems are facing significant challenges due to the extinction of
 
 This thesis presents a real-time system for detecting and tracking fish in underwater environments, utilizing a custom fish detector called **`YOLO-FishScale`** based on the `YOLOv8` algorithm. This detector addresses the challenge of detecting small fish, which vary in size and distance within frames. It enhances YOLOv8 by adding a new detection head that uses features from the $P_2$ layer and replaces the Conv module with `SPD-Conv`, improving performance on small and low-resolution targets. Additionally, `CBAM` (Convolutional Block Attention Mechanism) modules are integrated to enhance feature fusion, resulting in more accurate fish detection and tracking.
 
+![Screenshot_15-10-2024_17260_](https://github.com/user-attachments/assets/14a09688-8c0f-4486-a6e7-184c31093ff8)
+
+
 >[!NOTE]
 >The original YOLOv8 model employs a backbone network that down-samples the image through five stages, resulting in five feature layers ($P_1$, $P_2$, $P_3$, $P_4$, and $P_5$). Here, each $P_i$ layer represents a resolution of $1/2^i$ of the original image. To address the challenge of detecting small fish more effectively, `YOLO-FishScale` proposes the addition of a new detection head to the `YOLOv8` architecture. This additional detection head utilizes features from the $P_2$ _layer_, which is specifically designed to enhance micro-target detection capabilities. Small objects are particularly challenging to detect due to their low resolution, which provides limited information about the content needed to learn patterns.
 
