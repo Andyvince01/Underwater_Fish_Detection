@@ -1,14 +1,17 @@
 # Specify the path to the yaml file containing the fishscale 'TRAIN' data
 train:
 - ../data/fishscale_dataset/train/images
+- ../data/fishscale_dataset2/train/images
 
 # Specify the path to the yaml file containing the fishscale 'VALID' data
 val:
 - ../data/fishscale_dataset/valid/images
+- ../data/fishscale_dataset2/valid/images
 
 # Specify the path to the yaml file containing the fishscale 'TEST' data
 test:
 - ../data/fishscale_dataset/test/images
+# - ../data/fishscale_dataset2/test/images
 
 # Specify the number of classes in the dataset
 nc: 1
@@ -16,25 +19,3 @@ nc: 1
 # Specify the names of the classes in the dataset
 names: 
   0 : fish
-
-# Download script/URL (optional)
-# Specify the path to the yaml file containing the fishscale 'TRAIN' data
-train:
-- ../data/fishscale_dataset/train/images
-
-# Specify the path to the yaml file containing the fishscale 'VALID' data
-val:
-- ../data/fishscale_dataset/valid/images
-
-# Specify the path to the yaml file containing the fishscale 'TEST' data
-test:
-- ../data/fishscale_dataset/test/images
-
-# Specify the number of classes in the dataset
-nc: 1
-
-# Specify the names of the classes in the dataset
-names: 
-  0 : fish
-
-# Download script/URL (optional)
