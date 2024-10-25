@@ -15,54 +15,54 @@ scales: # model compound scaling constants, i.e. 'model=yolov8n.yaml' will call 
 backbone:
   # [from, repeats, module, args (output_channel, kernel_size, stride, ...)]
   - [-1, 1, FunieGAN, []]                         # 0 (FunieGAN)
-  - [-1, 1, Conv, [64, 3, 2]]                     # 0-P1/2
-  - [-1, 1, Conv, [128, 3, 1]]                    # 1-P2/4
-  - [-1, 1, SpaceToDepth, [1]]                    # 2 (SpaceToDepth)
-  - [-1, 3, C2f, [128, True]]                     # 3
-  - [-1, 1, Conv, [256, 3, 1]]                    # 4-P3/8
-  - [-1, 1, SpaceToDepth, [1]]                    # 5 (SpaceToDepth)
-  - [-1, 6, C2f, [256, True]]                     # 6        
-  - [-1, 1, Conv, [512, 3, 1]]                    # 7-P4/16
-  - [-1, 1, SpaceToDepth, [1]]                    # 8 (SpaceToDepth)
-  - [-1, 6, C2f, [512, True]]                     # 9
-  - [-1, 1, Conv, [1024, 3, 1]]                   # 10-P5/32
-  - [-1, 1, SpaceToDepth, [1]]                    # 11 (SpaceToDepth)
-  - [-1, 3, C2f, [1024, True]]                    # 12
-  - [-1, 1, SPPF, [1024, 5]]                      # 13 (SPPF)
+  - [-1, 1, Conv, [64, 3, 2]]                     # 1-P1/2
+  - [-1, 1, Conv, [128, 3, 1]]                    # 2-P2/4
+  - [-1, 1, SpaceToDepth, [1]]                    # 3 (SpaceToDepth)
+  - [-1, 3, C2f, [128, True]]                     # 4
+  - [-1, 1, Conv, [256, 3, 1]]                    # 5-P3/8
+  - [-1, 1, SpaceToDepth, [1]]                    # 6 (SpaceToDepth)
+  - [-1, 6, C2f, [256, True]]                     # 7        
+  - [-1, 1, Conv, [512, 3, 1]]                    # 8-P4/16
+  - [-1, 1, SpaceToDepth, [1]]                    # 9 (SpaceToDepth)
+  - [-1, 6, C2f, [512, True]]                     # 10
+  - [-1, 1, Conv, [1024, 3, 1]]                   # 11-P5/32
+  - [-1, 1, SpaceToDepth, [1]]                    # 12 (SpaceToDepth)
+  - [-1, 3, C2f, [1024, True]]                    # 13
+  - [-1, 1, SPPF, [1024, 5]]                      # 14 (SPPF)
 
 # YOLOv8.0-p2 head
 head:
-  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]    # 14
-  - [[-1, 10], 1, Concat, [1]]                    # 15 cat backbone P4
-  - [-1, 3, C2f, [512]]                           # 16
-  - [-1, 1, ResBlock_CBAM, [512]]                 # 17
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]    # 15
+  - [[-1, 10], 1, Concat, [1]]                    # 16 cat backbone P4
+  - [-1, 3, C2f, [512]]                           # 17
+  - [-1, 1, ResBlock_CBAM, [512]]                 # 18
 
-  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]    # 18
-  - [[-1, 7], 1, Concat, [1]]                     # 19 cat backbone P3
-  - [-1, 3, C2f, [256]]                           # 20 (P3/8-small)
-  - [-1, 1, ResBlock_CBAM, [256]]                 # 21
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]    # 19
+  - [[-1, 7], 1, Concat, [1]]                     # 20 cat backbone P3
+  - [-1, 3, C2f, [256]]                           # 21 (P3/8-small)
+  - [-1, 1, ResBlock_CBAM, [256]]                 # 22
 
-  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]    # 22
-  - [[-1, 4], 1, Concat, [1]]                     # 23 cat backbone P2
-  - [-1, 3, C2f, [128]]                           # 24 (P2/4-xsmall)
-  - [-1, 1, ResBlock_CBAM, [128]]                 # 25
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]    # 23
+  - [[-1, 4], 1, Concat, [1]]                     # 24 cat backbone P2
+  - [-1, 3, C2f, [128]]                           # 25 (P2/4-xsmall)
+  - [-1, 1, ResBlock_CBAM, [128]]                 # 26
 
-  - [-1, 1, Conv, [128, 3, 1]]                    # 26
-  - [-1, 1, SpaceToDepth, [1]]                    # 27 (SpaceToDepth)
-  - [[-1, 22], 1, Concat, [1]]                    # 28 cat head P3
-  - [-1, 3, C2f, [256]]                           # 29 (P3/8-small)
-  - [-1, 1, ResBlock_CBAM, [256]]                 # 30
+  - [-1, 1, Conv, [128, 3, 1]]                    # 27
+  - [-1, 1, SpaceToDepth, [1]]                    # 28 (SpaceToDepth)
+  - [[-1, 22], 1, Concat, [1]]                    # 29 cat head P3
+  - [-1, 3, C2f, [256]]                           # 30 (P3/8-small)
+  - [-1, 1, ResBlock_CBAM, [256]]                 # 31
 
-  - [-1, 1, Conv, [256, 3, 1]]                    # 31
-  - [-1, 1, SpaceToDepth, [1]]                    # 32 (SpaceToDepth)
-  - [[-1, 18], 1, Concat, [1]]                    # 33 cat head P4
-  - [-1, 3, C2f, [512]]                           # 34 (P4/16-medium)
-  - [-1, 1, ResBlock_CBAM, [512]]                 # 35
+  - [-1, 1, Conv, [256, 3, 1]]                    # 32
+  - [-1, 1, SpaceToDepth, [1]]                    # 33 (SpaceToDepth)
+  - [[-1, 18], 1, Concat, [1]]                    # 34 cat head P4
+  - [-1, 3, C2f, [512]]                           # 35 (P4/16-medium)
+  - [-1, 1, ResBlock_CBAM, [512]]                 # 36
 
-  - [-1, 1, Conv, [512, 3, 1]]                    # 36
-  - [-1, 1, SpaceToDepth, [1]]                    # 37 (SpaceToDepth)        
-  - [[-1, 14], 1, Concat, [1]]                    # 38 cat head P5
-  - [-1, 3, C2f, [1024]]                          # 39 (P5/32-large)
-  - [-1, 1, ResBlock_CBAM, [1024]]                # 40
+  - [-1, 1, Conv, [512, 3, 1]]                    # 37
+  - [-1, 1, SpaceToDepth, [1]]                    # 38 (SpaceToDepth)        
+  - [[-1, 14], 1, Concat, [1]]                    # 39 cat head P5
+  - [-1, 3, C2f, [1024]]                          # 40 (P5/32-large)
+  - [-1, 1, ResBlock_CBAM, [1024]]                # 41
 
-  - [[26, 31, 36, 41], 1, Detect, [nc]]           # 41 Detect(P2, P3, P4, P5)
+  - [[26, 31, 36, 41], 1, Detect, [nc]]           # 42 Detect(P2, P3, P4, P5)
