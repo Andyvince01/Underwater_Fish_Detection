@@ -5,7 +5,9 @@ data/fishscale_dataset/
 data/fishscale_dataset2/
 
 # Exclude olds models (they must be deleted)
-models/runs/detect/old/
+models/results/*
+models/runs/*
+models/weights/*
 
 # Exclude everything from runs directory
 runs/
