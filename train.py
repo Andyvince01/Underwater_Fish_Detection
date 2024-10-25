@@ -33,6 +33,7 @@ def train(model : str = 'yolov8n', weights : str = None, **kwargs : dict):
     kwargs['project'] = os.path.join('models', 'runs', 'detect') if 'project' not in kwargs else kwargs['project']
     kwargs['name'] = model.split('v')[0].upper() + 'v' + model.split('v')[1] + ('' if weights else ' from scratch') if 'name' not in kwargs else kwargs['name']
     model = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ultralytics', 'cfg', 'models', 'v8', args.model + '.yaml')
+    weights = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models', 'weights', weights) if weights else None
 
     #--- Load the model ---#
     yolo = YOLO(model=model).load(weights)
@@ -70,7 +71,6 @@ if __name__ == '__main__':
         type=str,
         default='',
         help='The weights to load for the model. If not specified, the model is trained from scratch.',
-        choices=['', 'yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x']
     )
     parser.add_argument(
         '--kwargs',
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     
     #--- Modify the arguments ---#
     model = args.model if args.model else 'yolov8n'
-    weights = args.weights + ".pt" if args.weights and ".pt" not in args.weights else None
+    weights = args.weights + (".pt" if '.pt' not in args.weights else '') if args.weights else None
     kwargs = args.kwargs if args.kwargs is not None else {}
 
     #--- Train the model ---#
