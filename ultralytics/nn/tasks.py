@@ -272,40 +272,21 @@ class BaseModel(nn.Module):
             return self
         
         model = weights["model"] if isinstance(weights, dict) else weights  # torchvision models are not dicts
-        csd2 = model.float().state_dict()  # checkpoint state_dict as FP32
+        csd1 = model.float().state_dict()  # checkpoint state_dict as FP32
                         
         #--- Custom Function to get the model name ---#
-        model_name = self._get_model_name()
-        csd3 = self._rematching_state_dict(csd2, model_name)
-        csd = intersect_dicts(csd3, self.state_dict())  # intersect
+        import re
+        lambda_func = lambda x: str(int(x.group(1)) + (1 if isinstance(self.model[0], (FunieGAN, UieDM)) else 0))
+        csd1 = {re.sub(r'(\d+)', lambda_func, k, count=1): v for k, v in csd1.items()}
+        csd2 = intersect_dicts(csd1, self.state_dict())  # intersect
         
-        # Save on file .txt if not exists create
-        import os
-        idx = sum([1 for f in os.listdir() if 'model' in f])
-        with open(f'model_{idx}.txt', 'w') as f:
-            f.write("OLD KEYS: \n")
-            f.write(str(csd2.keys()))
-            f.write('\n\n')
-            f.write("NEW KEYS: \n")
-            f.write(str(csd3.keys()))
-            f.write('\n\n')
-            f.write("MODEL KEYS: \n")
-            f.write(str(self.state_dict().keys()))
-            f.write('\n\n')
-            f.write("INTERSECT KEYS: \n")
-            f.write(str(csd.keys()))
-            for k, v in csd3.items():
-                try:
-                    vv = self.state_dict()[k]
-                    f.write(f"\n\n{k}: {v.shape} - {vv.shape}\n")
-                except:
-                    f.write(f"\n\n{k}: {v.shape} - NOT FOUND\n")           
-        self.load_state_dict(csd, strict=False)  # load
         if verbose:
-            LOGGER.info(f"⚙️ Transferred {len(csd)}/{len(self.model.state_dict())} items from pretrained weights!")
-            LOGGER.info(f"🚀 Model loaded with {len(csd)} layers, {len(self.model.state_dict()) - len(csd)} layers left unchanged!")    
+            LOGGER.info(f"⚙️ Transferred {len(csd2)}/{len(self.model.state_dict())} items from pretrained weights!")
+            LOGGER.info(f"🚀 Model loaded with {len(csd2)} layers, {len(self.model.state_dict()) - len(csd2)} layers left unchanged!")  
+            
+        #--- Load the model state dictionary ---#
+        self.load_state_dict(csd2, strict=False)  
         
-
     def loss(self, batch, preds=None):
         """
         Compute loss.
@@ -362,7 +343,7 @@ class BaseModel(nn.Module):
         OrderedDict
             The rematched state dictionary.
         '''
-        import bisect, re
+        import re
         #--- Return the state dictionary if the model name is yolov8 ---#
         if model_name == 'yolov8': return csd
         #--- Rematch the state dictionary ---#

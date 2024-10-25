@@ -51,7 +51,6 @@ class DDPM(nn.Module):
         
         # Load the pretrained models
         self.load_network()
-        # self.print_network()
 
     def set_requires_grad(self, nets, requires_grad=False):
         """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
@@ -66,7 +65,14 @@ class DDPM(nn.Module):
                 for param in net.parameters():
                     param.requires_grad = requires_grad
 
-    def feed_data(self, data):
+    def feed_data(self, data : dict) -> None:
+        ''' Feed the data to the model 
+        
+        Parameters
+        ----------
+        data : dict
+            The input data that needs to be fed to the model.
+        '''
         self.data = self.set_device(data)
 
     def optimize_parameters(self, flag=None):
