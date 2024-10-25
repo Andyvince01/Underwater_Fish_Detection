@@ -85,7 +85,7 @@ if __name__ == '__main__':
     #--- Parse the arguments from the command line ---#
     parser = argparse.ArgumentParser(description='Test the YOLO models on the FishScale dataset.')
     # Add the arguments
-    parser.add_argument('--model', type=str, required=True, help='The model to test.', default='YOLOv8s')
+    parser.add_argument('--model', type=str, required=True, help='The path to the model to be tested.', default='YOLOv8s')
     parser.add_argument('-w', '--weights', type=str, help='The weights of the model. Default is the best weights.', default='best.pt')
     parser.add_argument('-s', '--source', type=str, help='The source to test the model on.')
     parser.add_argument('-i', '--image', type=str, help='The image to test the model on.')
