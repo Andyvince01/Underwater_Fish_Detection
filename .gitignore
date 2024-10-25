@@ -2,7 +2,7 @@
 
 # Exclude datasets from being uploaded
 data/fishscale_dataset/
-data/fishscale2_dataset/
+data/fishscale_dataset2/
 
 # Exclude olds models (they must be deleted)
 models/runs/detect/old/
