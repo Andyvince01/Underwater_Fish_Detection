@@ -64,6 +64,11 @@ if __name__ == '__main__':
             'yolov8m_FunieGAN', 'yolov8m-p2_FunieGAN', 'yolov8m-p2-SPD_FunieGAN', 'yolov8m-p2-CBAM_FunieGAN', 'yolov8m-FishScale_FunieGAN',
             'yolov8l_FunieGAN', 'yolov8l-p2_FunieGAN', 'yolov8l-p2-SPD_FunieGAN', 'yolov8l-p2-CBAM_FunieGAN', 'yolov8l-FishScale_FunieGAN',
             'yolov8x_FunieGAN', 'yolov8x-p2_FunieGAN', 'yolov8x-p2-SPD_FunieGAN', 'yolov8x-p2-CBAM_FunieGAN', 'yolov8x-FishScale_FunieGAN',
+            'yolov8n_UIEDM', 'yolov8n-p2_UIEDM', 'yolov8n-p2-SPD_UIEDM', 'yolov8n-p2-CBAM_UIEDM', 'yolov8n-FishScale_UIEDM',
+            'yolov8s_UIEDM', 'yolov8s-p2_UIEDM', 'yolov8s-p2-SPD_UIEDM', 'yolov8s-p2-CBAM_UIEDM', 'yolov8s-FishScale_UIEDM',
+            'yolov8m_UIEDM', 'yolov8m-p2_UIEDM', 'yolov8m-p2-SPD_UIEDM', 'yolov8m-p2-CBAM_UIEDM', 'yolov8m-FishScale_UIEDM',
+            'yolov8l_UIEDM', 'yolov8l-p2_UIEDM', 'yolov8l-p2-SPD_UIEDM', 'yolov8l-p2-CBAM_UIEDM', 'yolov8l-FishScale_UIEDM',
+            'yolov8x_UIEDM', 'yolov8x-p2_UIEDM', 'yolov8x-p2-SPD_UIEDM', 'yolov8x-p2-CBAM_UIEDM', 'yolov8x-FishScale_UIEDM',
         ]
     )
     parser.add_argument(

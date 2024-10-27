@@ -195,7 +195,7 @@ class BasePredictor:
             if self.args.task == "classify"
             else None
         )
-        LOGGER.info(f"Using {self.model.name} 🚀 with {self.device.type} 🎚️ - The source is {source}")
+        # LOGGER.info(f"Using {self.model.name} 🚀 with {self.device.type} 🎚️ - The source is {source}")
         self.dataset = load_inference_source(
             source=source,
             batch=self.args.batch,

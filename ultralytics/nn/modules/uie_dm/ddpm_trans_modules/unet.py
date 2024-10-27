@@ -39,14 +39,14 @@ class TimeEmbedding(nn.Module):
         super().__init__()
         self.dim = dim
         inv_freq = torch.exp(
-            torch.arange(0, dim, 2, dtype=torch.float32) *
+            torch.arange(0, dim, 2, dtype=torch.float16) *
             (-math.log(10000) / dim)
         )
         self.register_buffer("inv_freq", inv_freq)
 
     def forward(self, input):
         shape = input.shape
-        sinusoid_in = torch.ger(input.view(-1).float(), self.inv_freq)
+        sinusoid_in = torch.ger(input.view(-1).float().half(), self.inv_freq)  # Convertito in half
         pos_emb = torch.cat([sinusoid_in.sin(), sinusoid_in.cos()], dim=-1)
         pos_emb = pos_emb.view(*shape, self.dim)
         return pos_emb
@@ -244,21 +244,27 @@ class UNet(nn.Module):
                 nn.Linear(inner_channel, inner_channel * 4),
                 Swish(),
                 nn.Linear(inner_channel * 4, inner_channel)
-            )
+            ).half()
         else:
             time_dim = None
             self.time_mlp = None
 
         dim = inner_channel
 
-        self.encoder_water = Encoder(in_channel=in_channel, inner_channel=inner_channel, norm_groups=norm_groups)
+        self.encoder_water = Encoder(in_channel=in_channel, inner_channel=inner_channel, norm_groups=norm_groups).half()
 
-        self.refine = ResnetBloc_eca(dim=dim*2**1, dim_out=dim*2**1, time_emb_dim=time_dim, norm_groups=norm_groups, with_attn=True)
-        self.de_predict = nn.Sequential(nn.Conv2d(dim * 2 ** 1, out_channel, kernel_size=1, stride=1))
+        self.refine = ResnetBloc_eca(dim=dim*2**1, dim_out=dim*2**1, time_emb_dim=time_dim, norm_groups=norm_groups, with_attn=True).half()
+        self.de_predict = nn.Sequential(nn.Conv2d(dim * 2 ** 1, out_channel, kernel_size=1, stride=1)).half()
 
 
     def forward(self, x, time):
         # print(time.shape)
+        x = x.half()
+        time = time.half()
+        
+        if exists(self.time_mlp):
+            self.time_mlp = self.time_mlp.half()
+        
         t = self.time_mlp(time) if exists(self.time_mlp) else None
 
         mid_feat, x1 = self.encoder_water(x, t)

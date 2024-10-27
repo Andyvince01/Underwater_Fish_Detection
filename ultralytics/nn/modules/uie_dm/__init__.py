@@ -24,7 +24,7 @@ class UieDM(nn.Module):
         '''
         super(UieDM, self).__init__()
         # Initialize the DDPM model
-        self.ddpm = DDPM(phase=phase, weights=os.path.join(WEIGHTS_DIR, weights))
+        self.ddpm = DDPM(phase=phase, weights=os.path.join(WEIGHTS_DIR, weights)).half()
         # Set the model to evaluation mode
         self.ddpm.set_new_noise_schedule(
             schedule_opt={
@@ -36,6 +36,7 @@ class UieDM(nn.Module):
             schedule_phase='val'
         )
         self.ddpm.logger.info(f'🖼️ {colorstr("magenta", "bold", " UieDM")} model initialized!')
+                
         self.ddpm.set_requires_grad(self.ddpm.netG, requires_grad=False)
         
     @torch.no_grad()
@@ -53,9 +54,8 @@ class UieDM(nn.Module):
             The output tensor.
         '''
         from torch.cuda.amp import autocast
-        torch.cuda.empty_cache()
         # Define the pre-processing and post-processing transformations
-        pre_processing = transforms.Lambda(lambda x: x * 2 - 1)
+        pre_processing = transforms.Lambda(lambda x: (x - 1) * 2)
         post_processing = transforms.Lambda(lambda x: (x + 1) / 2)
 
         # Apply the pre-processing transformation to the input tensor
@@ -76,7 +76,6 @@ class UieDM(nn.Module):
         x = x.to(dtype=dtype) if dtype != torch.float32 else x
     
         # Return the output tensor
-        torch.cuda.empty_cache()
         return x.to(device) if device == torch.device('cpu') else x
         
     def parameters(self) -> Generator:

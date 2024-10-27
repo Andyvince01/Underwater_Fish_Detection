@@ -485,9 +485,10 @@ class GaussianDiffusion(nn.Module):
             # Get the time step tensor
             t = torch.full((b,), i, device=device, dtype=torch.long)
             # Get the next time step tensor
-            t_next = None if j == len(time_steps) - 1 else torch.full((b,), time_steps[j + 1], device=device, dtype=torch.long)
+            t_next = None if j == len(time_steps) - 1 else torch.full((b,), time_steps[j + 1], device=device, dtype=torch.long).half()
             # Sample the image tensor
-            img = self.p_sample_ddim2(img, t, t_next, condition_x=x, style=None)
+            img = self.p_sample_ddim2(img.half(), t.half(), t_next, condition_x=x.half(), style=None)
+
         # Return the sampled image tensor
         return img
 
@@ -570,7 +571,7 @@ class GaussianDiffusion(nn.Module):
         condition_x = x_in['SR']
         [b, c, h, w] = x_start.shape
         t = torch.randint(0, self.num_timesteps, (b,),
-                          device=x_start.device).long()
+                            device=x_start.device).long()
 
         noise = default(noise, lambda: torch.randn_like(x_start))
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)

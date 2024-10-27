@@ -52,7 +52,7 @@ from ultralytics.utils.torch_utils import (
     strip_optimizer,
     torch_distributed_zero_first,
 )
-
+from ultralytics.nn.modules import FunieGAN
 
 class BaseTrainer:
     """
@@ -321,7 +321,7 @@ class BaseTrainer:
         self.run_callbacks("on_pretrain_routine_end")
 
     def _do_train(self, world_size=1):
-        """Train completed, evaluate and plot if specified by arguments."""
+        """Train completed, evaluate and plot if specified by arguments."""        
         if world_size > 1:
             self._setup_ddp(world_size)
         self._setup_train(world_size)
@@ -346,6 +346,11 @@ class BaseTrainer:
         self.optimizer.zero_grad()  # zero any resumed gradients to ensure stability on train start
         while True:
             self.epoch = epoch
+            
+            #--- Setup GAN layers ---#
+            if isinstance(self.model.model[0], FunieGAN):
+                self.setup_gan_layers()
+
             self.run_callbacks("on_train_epoch_start")
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")  # suppress 'Detected lr_scheduler.step() before optimizer.step()'
@@ -477,6 +482,19 @@ class BaseTrainer:
         gc.collect()
         torch.cuda.empty_cache()
         self.run_callbacks("teardown")
+
+    def setup_gan_layers(self):
+        ''' Unfreezes the GAN model after a certain epoch. '''
+        if self.epoch == 0:
+            LOGGER.info(">>> 🏔️ Freezing GAN layers")
+            for _, param in self.model.model[0].named_parameters():
+                param.requires_grad = False        
+        elif self.epoch == 20:
+            unfreeze_gan_layers = ['generator.down5', 'generator.up1', 'generator.up2', 'generator.up3', 'generator.up4', 'generator.final']
+            LOGGER.info(f">>> 🏜️ Unfreezing GAN layers: {unfreeze_gan_layers}")
+            for name, param in self.model.model[0].named_parameters():
+                if any(layer in name for layer in unfreeze_gan_layers):
+                    param.requires_grad = True                    
 
     def save_model(self):
         """Save model training checkpoints with additional metadata."""

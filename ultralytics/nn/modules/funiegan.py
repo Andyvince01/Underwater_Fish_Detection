@@ -6,6 +6,7 @@
 import torch, os
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.transforms.transforms as T
 
 __all__ = ['FunieGAN']
 
@@ -17,11 +18,39 @@ class FunieGAN(nn.Module):
     
     def __init__(self, in_channels=3, out_channels=3, weights=FUNIEGAN_DIR):
         super(FunieGAN, self).__init__()
+        #--- Load the generator network ---#
         self.generator = GeneratorFunieGAN(in_channels, out_channels)
+        #--- Load the discriminator network ---#
         self.generator.load_state_dict(torch.load(weights)) if weights else None
         
-    def forward(self, x):
-        return self.generator(x)
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
+        ''' Forward pass of the FUnIE-GAN model
+        
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input tensor.
+        
+        Returns
+        -------
+        torch.Tensor
+            The output tensor.
+        '''
+        #--- Pre-processing and post-processing transformations ---#
+        pre_processing = T.Lambda(lambda x: (x - 1) * 2)
+        post_processing = T.Lambda(lambda x: (x + 1) / 2)
+        
+        #--- Apply pre-processing transformation to the input tensor ---#
+        x = pre_processing(x)
+        
+        #--- Forward pass through the generator network ---#
+        x = self.generator(x)
+        
+        #--- Apply post-processing transformation to the output tensor ---#
+        x = post_processing(x)
+
+        #--- Return the output tensor ---#        
+        return x
 
 # Generator network
 class GeneratorFunieGAN(nn.Module):

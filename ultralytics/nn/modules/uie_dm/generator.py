@@ -36,7 +36,8 @@ def define_G(
     image_size : int
         Image size.
     '''
-    # Define the U-Net model
+
+    #--- Define the U-Net model ---#
     model = unet.UNet(
         in_channel=in_channel,
         out_channel=out_channel,
@@ -47,9 +48,9 @@ def define_G(
         res_blocks=res_blocks,
         dropout=dropout,
         image_size=image_size
-    )
+    ).half()
     
-    # Define the Gaussian diffusion model
+    #--- Define the Gaussian diffusion model ---#
     netG = diffusion.GaussianDiffusion(
         denoise_fn=model,
         image_size=image_size,
@@ -62,6 +63,10 @@ def define_G(
             "linear_start": 1e-6,
             "linear_end": 1e-2
         }
-    )
+    ).half()
+    
+    #--- Parallelize the model ---#
     netG = nn.DataParallel(netG)
+    
+    #--- Return the model ---#
     return netG

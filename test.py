@@ -4,9 +4,11 @@
 #------------------------------------------------------------------------------#
 # IMPORT LIBRARIES AND MODULES                                                 #    
 #------------------------------------------------------------------------------#
-import argparse, os, cv2 as cv
+import argparse, os
+import cv2 as cv
 import matplotlib.pyplot as plt
 
+from PIL import Image
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
 from utils import ParseKwargs, FISHSCALE_DIR
@@ -16,7 +18,7 @@ from utils import ParseKwargs, FISHSCALE_DIR
 #------------------------------------------------------------------------------#
 
 #--- FUNCTION: Test the model ---#
-def test(model : str, weights : str, source : str, mode : str, **kwargs) -> None:
+def test(model : str, weights : str, source : str, mode : str = None, **kwargs) -> None:
     '''Test the model on the given source. The source can be a directory (specified in the YAML file) or a single image.
     
     Parameters
@@ -40,7 +42,7 @@ def test(model : str, weights : str, source : str, mode : str, **kwargs) -> None
     yolo = YOLO(weights)
                 
     # Test the model
-    results = yolo.val(data=source, split=mode, **kwargs) if mode in ['train', 'test', 'val'] else yolo.predict(source=source, **kwargs)
+    results = yolo.val(data=source, split=mode, **kwargs) if mode in ['train', 'test', 'val'] else yolo.predict(source=Image.open(source))
     
     #--- Draw the results on the image if mode is 'image' else return ---#
     if mode in ['train', 'test', 'val']: return
@@ -58,8 +60,11 @@ def draw_results(results : list, source : str) -> None:
     source : str
         The source to draw the results on.    
     '''    
+    #--- Load the image ---#
+    image = Image.open(source)
+    
     #--- Define YOLO's Annotator ---#
-    annotator = Annotator(source)
+    annotator = Annotator(image)
     
     #--- Draw the results on the image ---#
     for r in results:
@@ -71,12 +76,11 @@ def draw_results(results : list, source : str) -> None:
             c = box.cls             # Get the class of the bounding box
             
             # Draw the bounding box
-            annotator.box_label(b, label=c, color='red', line_thickness=2)
-            
-    #--- Show the image ---#
-    image = annotator.result()
-    plt.imshow(cv.cvtColor(image, cv.COLOR_BGR2RGB))
-    plt.show()
+            annotator.box_label(b, label=c, color='red')
+                
+    #--- Save the image ---#
+    new_image = annotator.result()
+    Image.fromarray(new_image).save(f'{source.split(os.path.sep)[-1]}.jpg')
 
 #------------------------------------------------------------------------------#
 # MAIN                                                                         #
@@ -89,11 +93,12 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights', type=str, help='The weights of the model. Default is the best weights.', default='best.pt')
     parser.add_argument('-s', '--source', type=str, help='The source to test the model on.')
     parser.add_argument('-i', '--image', type=str, help='The image to test the model on.')
-    parser.add_argument('--mode', type=str, help='The mode to test the model in. Default is test.', default='test', choices=['image', 'train', 'test', 'val'])
+    parser.add_argument('--mode', type=str, help='The mode to test the model in. Default is test.', choices=['image', 'train', 'test', 'val'])
     parser.add_argument(
         '-k', '--kwargs', 
-        type=ParseKwargs,
         default={'verbose': True},
+        nargs='*',
+        action=ParseKwargs,
         help='The keyword arguments to pass to the val method of the YOLO class. The arguments should be in the format key1=value1, key2=value2,...',
     )
 
@@ -104,7 +109,7 @@ if __name__ == '__main__':
     model = args.model if args.model is not None else 'YOLOv8'
     weights = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models', 'runs', 'detect/', args.model, 'weights', args.weights)
     source = args.source if args.source is not None else args.image if args.image is not None else FISHSCALE_DIR
-    mode = args.mode if args.mode is not None else 'test'
+    mode = args.mode if args.mode is not None and args.image is not None else 'image' if args.image is not None else 'test'
     kwargs = args.kwargs if args.kwargs is not None else {}
 
     #--- Test the model ---#

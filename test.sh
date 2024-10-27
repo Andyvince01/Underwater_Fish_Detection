@@ -12,7 +12,7 @@ PYTHON_BIN="/bin/python3"
 TEST_SCRIPT="test.py"
 
 # ---- Default Parameters ----
-BATCH_SIZES=(32)                                                        # Array of batch sizes to loop through
+BATCH_SIZES=(8)                                                        # Array of batch sizes to loop through
 MODELS=(
     # "yolov8s-full"
     # "yolov8s-p2-full"
@@ -25,7 +25,8 @@ MODELS=(
     # "YOLOv8s-FishScale2"
     # "YOLOv8s-FishScale3"
     # "yolov8s-FishScale_FunieGAN-full_freeze-GAN"
-    "yolov8s-FishScale_FunieGAN-full"
+    # "yolov8s-FishScale_FunieGAN-full"
+    "yolov8s-FishScale_UIEDM-full"
 )    
 
 MODE_TYPES=('test')           # Default operational mode is 'test'. It can be 'test', 'train' or 'val'
