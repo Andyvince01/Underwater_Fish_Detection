@@ -47,9 +47,7 @@ The dataset was created using the `fishscale_dataset_generator.py` script. This 
 
 For a detailed explanation of the script and its functions, refer to the code comments and documentation within `fishscale_dataset_generator.py`.
 
-## 📋 **References**
-
-For detailed information about the dataset and its usage, please refer to:
+**Happy training! 🎣**
 
 [^1]: Saleh, Alzayat, Laradji, Issam H., Konovalov, Dmitry A., Bradley, Michael, Vazquez, David, Sheaves, Marcus, 2020. A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis. Sci. Rep. 10 (1), 1–10. [doi:10.53654/tangible.v5i1.110](https://doi.org/10.53654/tangible.v5i1.110).
 
@@ -58,6 +56,3 @@ For detailed information about the dataset and its usage, please refer to:
 [^3]: Australian Institute Of Marine Science, 2020. Ozfish dataset - machine learning dataset for baited remote underwater video stations.
 
 [^4]: A. A. Muksit, F. Hasan, M. F. Hasan Bhuiyan Emon, M. R. Haque, A. R. Anwary, and S. Shatabda, “Yolo-fish: A robust fish detection model to detect fish in realistic underwater environment,” Ecological Informatics, vol. 72, p. 101847, 2022. [doi:10.1016/j.ecoinf.2022.101847](https://doi.org/10.1016/j.ecoinf.2022.101847).
-
-
-**Happy training! 🎣**
