@@ -10,7 +10,7 @@ val:
 
 # Specify the path to the yaml file containing the fishscale 'TEST' data
 test:
-- ../data/fishscale_dataset/test/images
+# - ../data/fishscale_dataset/test/images
 - ../data/fishscale_dataset2/test/images
 
 # Specify the number of classes in the dataset

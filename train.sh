@@ -99,10 +99,12 @@ FREEZE_VALUES=(0)  # Default freeze value is 0 (no freezing)
 
 # $PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs epochs=50 batch=$BATCH_SIZE freeze="1" name="$MODEL-freezed-full" close_mosaic="5"
 
-$PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full2" cfg='ultralytics/cfg/gan.yaml' 
+# $PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full2" cfg='ultralytics/cfg/gan.yaml' 
 
-$PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full2" cfg='ultralytics/cfg/gan.yaml' optimizer="SGD"
+# $PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full2" cfg='ultralytics/cfg/gan.yaml' optimizer="SGD"
 
-$PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full2" cfg='ultralytics/cfg/gan.yaml' mosaic="0" mixup="0" nbs="96"
+# $PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full2" cfg='ultralytics/cfg/gan.yaml' mosaic="0" mixup="0" nbs="96"
 
+$PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full@" optimizer='SGD'
+$PYTHON_BIN $TRAIN_SCRIPT --model $MODEL --weights 'best.pt' --kwargs name="$MODEL-full@" optimizer='AdamW' epochs=100
 # echo ">>> Training failed for $MODEL with batch size $BATCH_SIZE and freeze $FREEZE."

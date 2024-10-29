@@ -485,16 +485,20 @@ class BaseTrainer:
 
     def setup_gan_layers(self):
         ''' Unfreezes the GAN model after a certain epoch. '''
+        # if self.epoch == 0:
+        #     LOGGER.info(">>> 🏔️ Freezing GAN layers")
+        #     for _, param in self.model.model[0].named_parameters():
+        #         param.requires_grad = False        
         if self.epoch == 0:
-            LOGGER.info(">>> 🏔️ Freezing GAN layers")
-            for _, param in self.model.model[0].named_parameters():
-                param.requires_grad = False        
-        elif self.epoch == 20:
             unfreeze_gan_layers = ['generator.down5', 'generator.up1', 'generator.up2', 'generator.up3', 'generator.up4', 'generator.final']
-            LOGGER.info(f">>> 🏜️ Unfreezing GAN layers: {unfreeze_gan_layers}")
+            LOGGER.info(f">>> 🏔️ Unfreezing GAN layers: {unfreeze_gan_layers}")
             for name, param in self.model.model[0].named_parameters():
                 if any(layer in name for layer in unfreeze_gan_layers):
-                    param.requires_grad = True                    
+                    LOGGER.info(f"UnFreezing layer '{name}'")
+                    param.requires_grad = True
+                else:
+                    LOGGER.info(f"freezing layer '{name}'")
+                    param.requires_grad = False                    
 
     def save_model(self):
         """Save model training checkpoints with additional metadata."""
