@@ -123,4 +123,4 @@ crop_fraction: 0.85 # (float) image crop fraction for classification (0.1-1), 1.
 cfg: # (str, optional) for overriding defaults.yaml
 
 # Tracker settings ------------------------------------------------------------------------------------------------------
-tracker: botsort.yaml # (str) tracker type, choices=[botsort.yaml, bytetrack.yaml]
+tracker: bytetrack.yaml # (str) tracker type, choices=[botsort.yaml, bytetrack.yaml]
