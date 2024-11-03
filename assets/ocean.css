@@ -1,0 +1,102 @@
+body {
+    font-family: Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0;
+    min-height: 100vh;
+}
+
+.welcome-container * {
+    margin: 0;
+    padding: 0;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.welcome-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;    
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+#video-background {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    min-width: 100%; 
+    min-height: 100%
+    z-index: 1;
+}
+
+.content-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2rem;
+    border-radius: 15px;
+    color: #f1f1f1;
+    width: 90%;
+    max-width: 600px;
+}
+
+.welcome-title {
+    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+    color: #fff;
+}
+
+.welcome-text {
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.start-button {
+    background: linear-gradient(to right, #6ee7b7, #60a5fa);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: x-large;
+    width: 30%;
+    display: block;
+    margin: 0 auto;
+}
+
+.start-button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(to right, #60a5fa, #6ee7b7);
+}
+
+.gradio-container {
+    max-width: 100% !important;
+    padding: 10pt !important;
+    margin: 0 !important;
+}
+
+.fish-counter {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#fish-count {
+    transition: all 0.3s ease;
+}
+
+#fish-count.updating {
+    color: #4CAF50;
+    transform: scale(1.1);
+}
