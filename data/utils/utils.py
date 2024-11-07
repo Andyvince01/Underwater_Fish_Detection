@@ -9,12 +9,13 @@ from typing import Literal, Tuple
 import matplotlib.pyplot as plt, os, seaborn as sns, pandas as pd
 import argparse
 
-# Constants for the images
+#--- Constants ---#
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 640
-DPI = 96
 
-# Function to count the number of fish in the images for a given input dimension
+#---------------------------------------------------------------------------------------------------------------------#
+# 1. Function to compute the number of fish in the images for a given input dimension                                 #
+#---------------------------------------------------------------------------------------------------------------------#
 def fish_count(fish_sizes : dict, width : float = float('inf'), height : float = float('inf')) -> dict:
     ''' This function computes the number of fish in the images for a given input dimension.
     
@@ -39,7 +40,9 @@ def fish_count(fish_sizes : dict, width : float = float('inf'), height : float =
         total_fish[source] = sum([1 for fish in fish_sizes[source] if fish[0] <= width and fish[1] <= height])
     return total_fish
 
-# Function to compute the size distribution of the fish in the images
+#---------------------------------------------------------------------------------------------------------------------#
+# 2. Function to compute the size distribution of the fish in the images                                              #
+#---------------------------------------------------------------------------------------------------------------------#
 def size_distribution(save : bool = True) -> dict:
     ''' This function computes the size distribution of the fish in the images. 
     
@@ -53,7 +56,7 @@ def size_distribution(save : bool = True) -> dict:
     dict
         A dictionary containing the fish sizes for the different sources.
     '''
-    def get_size(width : float, height : float) -> Tuple[float, float]:
+    def get_size(width : float, height : float, dpi : int = 96) -> Tuple[float, float]:
         ''' This function returns the size in cm of the fish in the image. 
         
         Parameters
@@ -62,53 +65,57 @@ def size_distribution(save : bool = True) -> dict:
             The width of the fish in pixels (that is, the width of the bounding box).
         height : float
             The normalized height of the fish (that is, the height divided by the height of the image).
-            
+        dpi : int
+            The resolution of the plot. By default, the resolution is set to 96.
+        
         Returns
         -------
         Tuple[float, float]
             A tuple containing the height and width of the fish in cm.
         '''
-        # Convert the height and width from pixels to cm
-        width_cm  = width  * 2.54 / DPI * IMAGE_WIDTH
-        height_cm = height * 2.54 / DPI * IMAGE_HEIGHT
+        #--- Calculate the size of the fish in cm ---#
+        width_cm  = width  * 2.54 / dpi * IMAGE_WIDTH
+        height_cm = height * 2.54 / dpi * IMAGE_HEIGHT
         return height_cm, width_cm
     
-    # List to store the fish sizes
+    #--- Initialize the fish sizes dictionary ---#
     fish_sizes = {k: list() for k in ['train', 'test', 'valid']}
 
-    # Iterate over the folders
+    #--- Iterate over the sources ---#
     for folder in ['train', 'test', 'valid']:
-        # Iterate over the images in the folder
-        for image in tqdm(os.listdir(f"{folder}/labels"), desc="Processing images", leave=False):
+        #--- Iterate over the images ---#
+        for label in tqdm(os.listdir(f"{folder}/labels"), desc="Processing images", leave=False):
             # Check if the file is a text file (label file)
-            if not image.endswith(".txt"): continue
+            if not label.endswith(".txt"): continue
+
+            with Image.open(f"{folder}/images/" + label.replace(".txt", ".jpg")) as img:
+                # Get the DPI of the image
+                dpi = img.info['dpi'][0] if 'dpi' in img.info else 96
         
             # Open the image and for each fish in the image, get the size
-            with open(f"{folder}/labels/" + image, "r") as file:
+            with open(f"{folder}/labels/" + label, "r") as file:
                 for line in file:
                     line = line.split()
-                    height, width = get_size(float(line[3]), float(line[4]))
+                    height, width = get_size(width=float(line[3]), height=float(line[4]), dpi=dpi)
                     fish_sizes[folder].append((width, height)) 
     
-        # Check if the fish sizes should be saved or not
+        # Check if the fish sizes should be saved on a plot or not
         if not save: continue
     
-        # Create a DataFrame from the fish sizes
+        #--- 
         df = DataFrame(fish_sizes[folder], columns=["Width (cm)", "Height (cm)"])
         
         # Create a figure and axis
         fig, ax = plt.subplots(figsize=(9, 9))
         
-        # Use scatterplot with custom styling
-        sns.scatterplot(
+        # Create a histogram plot of the fish sizes
+        sns.histplot(
             data=df,                        # Data source           
             x="Width (cm)",                 # X-axis variable
             y="Height (cm)",                # Y-axis variable
-            marker='s',                     # Square markers
-            edgecolor='black',              # No border color
-            s=30,                           # Size of markers
-            color='mediumblue',             # Marker color
-            alpha=0.5                       # Transparency of markers
+            color='deepskyblue',            # Marker color
+            bins=100,                       # Number of bins
+            pmax=0.5                        # Maximum density value
         )
 
         # Enhance plot aesthetics
@@ -122,7 +129,7 @@ def size_distribution(save : bool = True) -> dict:
         
         # Set a cream background color for the plot
         fig.patch.set_facecolor('white')                                        # Background color of the plot area
-        ax.set_facecolor('ivory')                                               # Background color of the plotting area
+        # ax.set_facecolor('ivory')                                               # Background color of the plotting area
         plt.grid(True, which='both', linestyle='--', linewidth=0.7)
                 
         # Save the plot as a PNG file
@@ -137,9 +144,9 @@ if __name__ == "__main__":
     parser.add_argument(
         '--dataset',
         type=str,
-        default='fishscale_dataset',
+        default='fishscale_dataset2',
         help='The dataset to calculate the statistics for. By default, the dataset is set to "fishscale_dataset".',
-        choices=['datasets/deepfish', 'datasets/fish4knowledge', 'datasets/ozfish', 'fishscale_dataset']
+        choices=['datasets/deepfish', 'datasets/fish4knowledge', 'datasets/ozfish', 'fishscale_dataset', 'fishscale_dataset_2']
     )
     # Parse the arguments
     args = parser.parse_args()
