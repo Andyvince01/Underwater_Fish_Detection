@@ -629,6 +629,7 @@ class Metric(SimpleClass):
         all_ap (list): AP scores for all classes and all IoU thresholds. Shape: (nc, 10).
         ap_class_index (list): Index of class for each AP score. Shape: (nc,).
         nc (int): Number of classes.
+        avg_iou (float): Average IoU.
 
     Methods:
         ap50(): AP at IoU threshold of 0.5 for all classes. Returns: List of AP scores. Shape: (nc,) or [].
@@ -643,6 +644,7 @@ class Metric(SimpleClass):
         maps(): mAP of each class. Returns: Array of mAP scores, shape: (nc,).
         fitness(): Model fitness as a weighted combination of metrics. Returns: Float.
         update(results): Update metric attributes with new evaluation results.
+        avg_iou(): Average IoU of all classes. Returns: Float.
     """
 
     def __init__(self) -> None:
@@ -653,6 +655,7 @@ class Metric(SimpleClass):
         self.all_ap = []  # (nc, 10)
         self.ap_class_index = []  # (nc, )
         self.nc = 0
+        self.avg_iou = 0.0
 
     @property
     def ap50(self):
@@ -828,11 +831,12 @@ class DetMetrics(SimpleClass):
         self.plot = plot
         self.on_plot = on_plot
         self.names = names
-        self.box = Metric()
+        self.box = {'overall': Metric(), 'small': Metric(), 'medium': Metric(), 'large': Metric()}
         self.speed = {"preprocess": 0.0, "inference": 0.0, "loss": 0.0, "postprocess": 0.0}
         self.task = "detect"
+        self.size_name = 'overall'
 
-    def process(self, tp, conf, pred_cls, target_cls):
+    def process(self, tp, conf, pred_cls, target_cls, size_name='overall'):
         """Process predicted results for object detection and update metrics."""
         results = ap_per_class(
             tp,
@@ -844,41 +848,41 @@ class DetMetrics(SimpleClass):
             names=self.names,
             on_plot=self.on_plot,
         )[2:]
-        self.box.nc = len(self.names)
-        self.box.update(results)
+        self.box[size_name].nc = len(self.names)
+        self.box[size_name].update(results)
 
     @property
     def keys(self):
         """Returns a list of keys for accessing specific metrics."""
         return ["metrics/precision(B)", "metrics/recall(B)", "metrics/mAP50(B)", "metrics/mAP50-95(B)"]
 
-    def mean_results(self):
+    def mean_results(self, key='overall'):
         """Calculate mean of detected objects & return precision, recall, mAP50, and mAP50-95."""
-        return self.box.mean_results()
+        return self.box[key].mean_results()
 
-    def class_result(self, i):
+    def class_result(self, i, key='overall'):
         """Return the result of evaluating the performance of an object detection model on a specific class."""
-        return self.box.class_result(i)
+        return self.box[key].class_result(i)
 
     @property
     def maps(self):
         """Returns mean Average Precision (mAP) scores per class."""
-        return self.box.maps
+        return self.box[self.size_name].maps
 
     @property
     def fitness(self):
         """Returns the fitness of box object."""
-        return self.box.fitness()
+        return self.box[self.size_name].fitness()
 
     @property
     def ap_class_index(self):
         """Returns the average precision index per class."""
-        return self.box.ap_class_index
+        return self.box[self.size_name].ap_class_index
 
     @property
     def results_dict(self):
         """Returns dictionary of computed performance metrics and statistics."""
-        return dict(zip(self.keys + ["fitness"], self.mean_results() + [self.fitness]))
+        return dict(zip(self.keys + ["fitness"], self.mean_results(key=self.size_name) + [self.fitness]))
 
     @property
     def curves(self):
@@ -888,7 +892,7 @@ class DetMetrics(SimpleClass):
     @property
     def curves_results(self):
         """Returns dictionary of computed performance metrics and statistics."""
-        return self.box.curves_results
+        return self.box[self.size_name].curves_results
 
 
 class SegmentMetrics(SimpleClass):
