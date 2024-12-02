@@ -1828,15 +1828,34 @@ class Albumentations:
 
             # Transforms
             T = [
-                A.CLAHE(clip_limit=2, p=0.15),
+                A.CLAHE(clip_limit=2, p=0.1),
                 A.RandomBrightnessContrast(
                     brightness_limit=0.15, contrast_limit=0.15, brightness_by_max=True, p=0.1
                 ),
                 A.GaussianBlur(blur_limit=(3, 5), p=0.1),
-                A.ISONoise(color_shift=(0.01, 0.03), intensity=(0.1, 0.3), p=0.1),
-                A.MotionBlur(blur_limit=(3, 7), p=0.1),
-                A.GridDistortion(num_steps=5, distort_limit=0.2, p=0.05),
-                A.RandomFog(fog_coef_lower=0.1, fog_coef_upper=0.3, p=0.1),
+                A.ISONoise(color_shift=(0.01, 0.03), intensity=(0.1, 0.3), p=0.2),
+                A.MotionBlur(blur_limit=(3, 7), p=0.15),
+                A.OneOf([
+                    A.RGBShift(
+                        r_shift_limit=(30, 50),
+                        g_shift_limit=(-20, 20),
+                        b_shift_limit=(-20, 20),
+                        p=0.5
+                    ),
+                    A.RGBShift(
+                        r_shift_limit=(-20, 20),
+                        g_shift_limit=(30, 50),
+                        b_shift_limit=(-20, 20),
+                        p=0.5
+                    ),
+                    A.RGBShift(
+                        r_shift_limit=(-20, 20),
+                        g_shift_limit=(-20, 20),
+                        b_shift_limit=(30, 50),
+                        p=0.5
+                    ),
+                ], p=0.3),
+                A.RandomFog(fog_coef_lower=0.1, fog_coef_upper=0.15, alpha_coef=0.3, p=0.25),
             ]
 
             # Compose transforms

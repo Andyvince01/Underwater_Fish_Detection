@@ -1264,35 +1264,44 @@ def output_to_rotated_target(output, max_det=300):
     return targets[:, 0], targets[:, 1], targets[:, 2:-1], targets[:, -1]
 
 
-def feature_visualization(x, module_type, stage, n=32, save_dir=Path("runs/detect/exp")):
+def feature_visualization(x, module_type, stage, map_index=0, save_dir=Path("runs/detect/exp")):
     """
-    Visualize feature maps of a given model module during inference.
+    Visualize a single feature map of a given model module during inference.
 
     Args:
         x (torch.Tensor): Features to be visualized.
         module_type (str): Module type.
         stage (int): Module stage within the model.
-        n (int, optional): Maximum number of feature maps to plot. Defaults to 32.
+        map_index (int, optional): Index of the feature map to plot. Defaults to 0.
         save_dir (Path, optional): Directory to save results. Defaults to Path('runs/detect/exp').
     """
-    for m in {"Detect", "Segment", "Pose", "Classify", "OBB", "RTDETRDecoder"}:  # all model heads
-        if m in module_type:
-            return
+    excluded_modules = {"Detect", "Segment", "Pose", "Classify", "OBB", "RTDETRDecoder"}
+    if any(m in module_type for m in excluded_modules):
+        return
+
     if isinstance(x, torch.Tensor):
         _, channels, height, width = x.shape  # batch, channels, height, width
+
         if height > 1 and width > 1:
-            f = save_dir / f"stage{stage}_{module_type.split('.')[-1]}_features.png"  # filename
+          
+            # Prepare the save path
+            save_dir.mkdir(parents=True, exist_ok=True)
+            save_path = save_dir / f"stage{stage}_{module_type.split('.')[-1]}_map{map_index}.pdf"
 
-            blocks = torch.chunk(x[0].cpu(), channels, dim=0)  # select batch index 0, block by channels
-            n = min(n, channels)  # number of plots
-            _, ax = plt.subplots(math.ceil(n / 8), 8, tight_layout=True)  # 8 rows x n/8 cols
-            ax = ax.ravel()
-            plt.subplots_adjust(wspace=0.05, hspace=0.05)
-            for i in range(n):
-                ax[i].imshow(blocks[i].squeeze())  # cmap='gray'
-                ax[i].axis("off")
+            # Select and process the feature map
+            feature_map = x[0].cpu().numpy().mean(axis=0)  # First batch, specified feature map
+            plt.figure(figsize=(6, 6))
+            plt.imshow(feature_map, cmap="viridis")  # Perceptual colormap
+            plt.axis("off")
+            # plt.title(f"Feature Map {map_index} (Stage {stage})", fontsize=10)
 
-            LOGGER.info(f"Saving {f}... ({n}/{channels})")
-            plt.savefig(f, dpi=300, bbox_inches="tight")
+            # Save the figure
+            plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+            plt.tight_layout(pad=0)
+            plt.savefig(save_path, dpi=600, bbox_inches="tight", pad_inches=0)
             plt.close()
-            np.save(str(f.with_suffix(".npy")), x[0].cpu().numpy())  # npy save
+
+            # Log details
+            LOGGER.info(f"Saved feature map {map_index}/{channels} to {save_path}")
+        else:
+            LOGGER.warning("Feature map dimensions are too small to visualize.")

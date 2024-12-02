@@ -1,0 +1,24 @@
+# This file contains the vocabulary for the model to generate captions. The vocabulary is a list of words that the model can use to generate captions. 
+# The vocabulary file is a text file that contains one word per line. The vocabulary file should be located in the voc directory.
+
+# VOC_KEY SECTION. The `voc_key` is the key in the vocabulary file that contains the list of words. It is possible to create different vocabulary files for different domains
+# and use them with the model by changing the voc_key in the configuration file.
+voc_key: voc
+
+# VOCABULARY SECTION. After the voc_key, the vocabulary file should contain the list of words that the model can use to generate captions. As previously mentioned,
+# it is possible to create different vocabulary files for different domains and use them with the model by changing the voc_key in the configuration file.
+voc: 
+  - fish
+  - fishes
+  - shark
+  - sharks
+  # - burn
+  # - burned
+  # - burning
+  # - burn 
+  # - fire
+  # - flame
+  # - flames
+  # - lit
+  # - smoke
+  # - smoking

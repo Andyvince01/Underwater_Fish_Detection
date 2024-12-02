@@ -35,7 +35,7 @@ ARGV = sys.argv or ["", ""]  # sometimes sys.argv = []
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # YOLO
 ASSETS = ROOT / "assets"  # default images
-DEFAULT_CFG_PATH = ROOT / "cfg/best.yaml"           # 🎈 New configuration files
+DEFAULT_CFG_PATH = ROOT / "cfg/gan.yaml"           # 🎈 New configuration files
 NUM_THREADS = min(8, max(1, os.cpu_count() - 1))    # number of YOLO multiprocessing threads
 AUTOINSTALL = str(os.getenv("YOLO_AUTOINSTALL", True)).lower() == "true"  # global auto-install mode
 VERBOSE = str(os.getenv("YOLO_VERBOSE", True)).lower() == "true"  # global verbose mode
@@ -407,6 +407,33 @@ for k, v in DEFAULT_CFG_DICT.items():
 DEFAULT_CFG_KEYS = DEFAULT_CFG_DICT.keys()
 DEFAULT_CFG = IterableSimpleNamespace(**DEFAULT_CFG_DICT)
 
+# NEW CODE STARTS HERE ... ------------------------------------------------------------------------------------------------------------#
+
+# Get the Visual Language Model configuration
+VLM_CFG = DEFAULT_CFG_DICT.get('vlm', {})
+
+# Get the Resizer configuration
+RESIZERS = DEFAULT_CFG_DICT.get('resizers', {})
+
+# Get the Second Analyzers configuration
+SECOND_ANALYZERS = DEFAULT_CFG_DICT.get('second_analyzers', {})
+
+# Get the vocabulary configuration
+VOCAB_CFG = yaml_load(ROOT / 'cfg' / SECOND_ANALYZERS['voc_in_caption'].get('vocabulary', {})) if 'voc_in_caption' in SECOND_ANALYZERS.keys() and SECOND_ANALYZERS != {} else {}
+VOC = frozenset(VOCAB_CFG.get(VOCAB_CFG.get('voc_key'), []))
+
+model = VLM_CFG.get('model', 'VLM').upper()
+
+if model == 'BLIP2':
+    from transformers import Blip2Processor as Processor, Blip2ForConditionalGeneration as VLM
+elif model == 'LLAVA':
+    from transformers import LlavaProcessor as Processor, LlavaForConditionalGeneration as VLM
+elif model == 'PALIGEMMA':
+    from transformers import AutoProcessor as Processor, PaliGemmaForConditionalGeneration as VLM
+else:
+    from transformers import AutoProcessor as Processor, AutoModelForSeq2SeqLM as VLM
+
+#------------------------------------------------------------------------------------------------------------#
 
 def read_device_model() -> str:
     """
