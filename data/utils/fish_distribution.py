@@ -57,7 +57,7 @@ def fish_count(fish_sizes : dict, l_width : float = 32.0, l_height : float = 32.
     }
     
 #--- 2.2 - Function to compute the size distribution of the fish in the images ---#
-def size_distribution(dataset='fishscale_dataset', save : bool = True) -> dict:
+def fish_distribution(dataset='fishscale_dataset', save : bool = True) -> dict:
     ''' This function computes the size distribution of the fish in the images. 
     
     Parameters
@@ -95,37 +95,66 @@ def size_distribution(dataset='fishscale_dataset', save : bool = True) -> dict:
         height_cm = height * 2.54 / dpi * IMAGE_HEIGHT
         return height_cm, width_cm
     
-    #--- Initialize the fish sizes dictionary ---#
-    fish_sizes = {k: list() for k in ['train', 'test', 'valid']}
+    # Initialize the fish sizes dictionary --------------------------------------#
+    fish_sizes = np.load(ROOT/'utils'/f'{dataset}_fish_sizes.npy', allow_pickle=True).item() if os.path.exists(ROOT/'utils'/f'{dataset}_fish_sizes.npy') else {k: [] for k in ['train', 'valid', 'test']}
+    # Initialize the empty fish dictionary --------------------------------------#
+    empty_fish = np.load(ROOT/'utils'/f'{dataset}_empty_fish.npy', allow_pickle=True).item() if os.path.exists(ROOT/'utils'/f'{dataset}_empty_fish.npy') else {k: 0 for k in ['train', 'valid', 'test']}
+    # Initialize the total number of fish per source -----------------------------#
+    total_number_of_fish_per_source = np.load(ROOT/'utils'/f'{dataset}_total_number_of_fish_per_source.npy', allow_pickle=True).item() if os.path.exists(ROOT/'utils'/f'{dataset}_total_number_of_fish_per_source.npy') else {k: {} for k in ['train', 'valid', 'test']}
 
-    #--- Iterate over the sources ---#
-    empty_fish = {k : 0.0 for k in ['train', 'test', 'valid']}
-    for folder in ['train', 'test', 'valid']:
-        #--- Iterate over the images ---#
-        for label in tqdm(os.listdir(f"{ROOT/dataset/folder}/labels"), desc="Processing images", leave=False):
-            # Check if the file is a text file (label file)
-            if not label.endswith(".txt"): continue
+    # Iterate over the folders in the dataset -----------------------------------#
+    if fish_sizes['train'] == [] or fish_sizes['test'] == [] or fish_sizes['valid'] == []:
+        for folder in ['train', 'valid', 'test']:
+                # Iterate over the labels in the folder ---------------------------------#
+                for label in tqdm(os.listdir(f"{ROOT/dataset/folder}/labels"), desc="Processing images", leave=False):
+                    # Check if the file is a text file (label file) ----------------------#
+                    if not label.endswith(".txt"): continue
 
-            # Open the image and for each fish in the image, get the size
-            with open(f"{ROOT/dataset/folder}/labels/" + label, "r") as file:
-                # Check if the file is empty (no fish in the image)                            
-                if os.stat(f"{ROOT/dataset/folder}/labels/" + label).st_size == 0: empty_fish[folder] += 1; continue
-                # Iterate over the lines in the file and get the fish sizes                
-                for line in file:
-                    line = line.split()
-                    height, width = float(line[3]) * IMAGE_HEIGHT, float(line[4]) * IMAGE_WIDTH
-                    fish_sizes[folder].append((width, height)) 
-    
-        # Check if the fish sizes should be saved on a plot or not
-        if not save: continue
-        
-        #--- Plot the size distribution of the fish ---#
-        plot_data(fish_sizes[folder], dataset + "_" + folder)
+                    # Initialize the total number of fish per image ----------------------#
+                    total_number_of_fish_per_source[folder][label] = 0
+
+                    with open(f"{ROOT/dataset/folder}/labels/" + label, "r") as file:
+                        # Check if the file is empty (no fish in the image) --------------#
+                        if os.stat(f"{ROOT/dataset/folder}/labels/" + label).st_size == 0: empty_fish[folder] += 1; continue
+
+                        # Iterate over the lines in the file and get the fish sizes -------#
+                        for count, line in enumerate(file):
+                            line = line.split()
+                            height, width = float(line[3]) * IMAGE_HEIGHT, float(line[4]) * IMAGE_WIDTH
+                            fish_sizes[folder].append((width, height)) 
+            
+                        # Update the total number of fish per image ------------------------#
+                        total_number_of_fish_per_source[folder][label] = count + 1
+            
+                # Check if the fish sizes should be saved on a plot or not
+                if not save: continue
                 
+                # Plot the size distribution of the fish ---------------------------------#
+                plot_fish_size_distribution(fish_sizes[folder], dataset + "_" + folder)
+                    
+        np.save(ROOT/'utils'/f'{dataset}_fish_sizes.npy', fish_sizes)
+        np.save(ROOT/'utils'/f'{dataset}_empty_fish.npy', empty_fish)
+        np.save(ROOT/'utils'/f'{dataset}_total_number_of_fish_per_source.npy', total_number_of_fish_per_source)
+                
+    # Print the number of images with no fish -----------------------------------#
+    print(f"- Number of images with no fish in the dataset: {empty_fish}")
+    
+    mean_fish_per_source = {k: np.mean(list(total_number_of_fish_per_source[k].values())) for k in fish_sizes.keys()}
+    std_fish_per_source = {k: np.std(list(total_number_of_fish_per_source[k].values())) for k in fish_sizes.keys()}
+    min_fish_per_source = {k: np.min(list(total_number_of_fish_per_source[k].values())) for k in fish_sizes.keys()}
+    max_fish_per_source = {k: np.max(list(total_number_of_fish_per_source[k].values())) for k in fish_sizes.keys()}
+
+    print(f"- Mean number of fish per image: {mean_fish_per_source}")
+    print(f"- Standard deviation of the number of fish per image: {std_fish_per_source}")
+    print(f"- Minimum number of fish per image: {min_fish_per_source}")
+    print(f"- Maximum number of fish per image: {max_fish_per_source}")
+
+    plot_fish_distribution_per_image(mean_fish_per_source, std_fish_per_source, file_name = dataset)
+    
     return fish_sizes
 
 #--- 2.3 - Function to plot the size distribution of the fish ---#
-def plot_data(data : list, file_name : str):
+def plot_fish_size_distribution(data : list, file_name : str):
     ''' This function plots the size distribution of the fish in the images. 
     
     Parameters
@@ -192,6 +221,57 @@ def plot_data(data : list, file_name : str):
     #--- Save the plot ---#
     plt.savefig(f"{ROOT/'utils'/'images'/ file_name}_size_distribution.pdf", dpi=360)
 
+#--- 2.4 - Function to plot the fish distribution per image ---#
+def plot_fish_distribution_per_image(mean_fish_per_source : dict, std_fish_per_source : dict, file_name : str):
+    ''' This function plots the fish distribution per image. 
+    
+    Parameters
+    ----------
+    mean_fish_per_source : dict
+        A dictionary containing the mean number of fish per image for the different sources.
+    std_fish_per_source : dict
+        A dictionary containing the standard deviation of the number of fish per image for the different sources.
+    '''
+    plt.figure(figsize=(12, 12))  # Higher resolution
+    plt.style.use('seaborn-v0_8-pastel')  # Softer color palette
+
+    bars = plt.bar(
+        mean_fish_per_source.keys(),                            # Image sources
+        mean_fish_per_source.values(),                          # Mean fish count per source
+        yerr=std_fish_per_source.values(),                      # Standard deviation              
+        capsize=15,                                             # Capsize for the error bars                 
+        color=['#5B84B1', '#FC766A', '#5F9EA0', '#C1292E'],     # Sophisticated colors
+        alpha=0.75,                                             # Enhanced transparency
+        linewidth=1.2                                           # Line width       
+    )
+
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            x = bar.get_x() + 0.07,                             # X-coordinate
+            y = bar.get_height() + 0.12,                        # Y-coordinate
+            s = f'{height:.2f}',                                # Text      
+            ha='center', va='bottom',                           # Alignment    
+            fontsize=12, fontweight='bold'                      # Font properties
+        )
+
+    plt.xlabel('Image Source', fontsize=16, fontweight='semibold', labelpad=12)
+    plt.ylabel('Mean Fish Count per Image', fontsize=16, fontweight='semibold', labelpad=12)
+    plt.ylim(-11, 26)
+    
+    plt.xticks(
+        ticks=range(len(mean_fish_per_source)),        # Explicit positioning of ticks
+        labels=mean_fish_per_source.keys(),           # Labels corresponding to bars
+        rotation=45,                                  # Rotation for clarity
+        ha='center',                                  # Center alignment (for cap alignment)
+        fontweight='medium'
+    )
+    plt.grid(axis='y', linestyle='--', alpha=0.3)
+    plt.tight_layout()
+    
+    #--- Save the plot ---#
+    plt.savefig(f"{ROOT/'utils'/'images'/ file_name}_fish_distribution_per_image.pdf", dpi=360)
+
 #---------------------------------------------------------------------------------------------------------------------#
 # 3. 🎯 MAIN
 #---------------------------------------------------------------------------------------------------------------------#
@@ -202,7 +282,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--dataset',
         type=str,
-        default='fishscale_dataset',
+        default='fishscale_dataset2',
         help='The dataset to calculate the statistics for. By default, the dataset is set to "fishscale_dataset".',
         choices=['datasets/deepfish', 'datasets/fish4knowledge', 'datasets/ozfish', 'fishscale_dataset', 'fishscale_dataset_2']
     )
@@ -210,7 +290,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
         
     # Compute the size distribution of the fish in the images
-    fish_sizes = size_distribution(dataset=args.dataset, save=True)
+    fish_sizes = fish_distribution(dataset=args.dataset, save=True)
     
     # Total number of fish in all the images
     total_number_of_fish_per_source = {source: len(fish_sizes[source]) for source in fish_sizes.keys()}
@@ -220,7 +300,7 @@ if __name__ == "__main__":
     print(f"- Total number of fish in all the images: {total_number_of_fish_in_all_images}")
     
     #--- Compute the number of fish classified as `SMALL` according to the COCO dataset ---#
-    l_width, l_height = 0, 0; u_width, u_height = 10, 10
+    l_width, l_height = 0, 0; u_width, u_height = 32, 32
     total_fish = fish_count(fish_sizes, l_width=l_width, l_height=l_height, u_width=u_width, u_height=u_height)
     print(f"- Total number of fish in the images having an area between {l_width}x{l_height} and {u_width}x{u_height}: {sum(total_fish.values())} ({sum(total_fish.values())/total_number_of_fish_in_all_images*100:.2f}%) :\n\
         • Train: {total_fish['train']} ({total_fish['train']/total_number_of_fish_per_source['train']*100:.2f}%)\n\
@@ -229,7 +309,7 @@ if __name__ == "__main__":
     ) 
 
     #--- Compute the number of fish classified as `MEDIUM` according to the COCO dataset ---#    
-    l_width, l_height = 0, 0; u_width, u_height = 16, 16
+    l_width, l_height = 32, 32; u_width, u_height = 96, 96
     total_fish = fish_count(fish_sizes, l_width=l_width, l_height=l_height, u_width=u_width, u_height=u_height)
     print(f"- Total number of fish in the images having an area between {l_width}x{l_height} and {u_width}x{u_height}: {sum(total_fish.values())} ({sum(total_fish.values())/total_number_of_fish_in_all_images*100:.2f}%) :\n\
         • Train: {total_fish['train']} ({total_fish['train']/total_number_of_fish_per_source['train']*100:.2f}%)\n\
