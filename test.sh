@@ -14,21 +14,26 @@ TEST_SCRIPT="test.py"
 # ---- Default Parameters ----
 BATCH_SIZES=(32)                                                        # Array of batch sizes to loop through
 MODELS=(
-    # "yolov8s-full"
-    # "yolov8s-p2-full"
-    # "yolov8s-p2-SPD-full"
-    # "yolov8s-p2-CBAM-full"
-    # "yolov8s-FishScale-full"
-    # "yolov8s-FishScale-full2"
-    # "yolov8s-FishScale-full3"
-    # "YOLOv8s-FishScale"
-    # "YOLOv8s-FishScale2"
-    # "YOLOv8s-FishScale3"
-    # "yolov8s-FishScale_FunieGAN-full_freeze-GAN"
-    "yolov8s-FishScale_FunieGAN-full2"
-    # "yolov8s-FishScale_UIEDM-full"
+    #--- Trained Models on the FishScale_Dataset ---#
+    # "FishScale_Dataset/yolov8s"
+    # "FishScale_Dataset/yolov8s-p2"
+    # "FishScale_Dataset/yolov8s-p2-SPD"
+    # "FishScale_Dataset/yolov8s-p2-CBAM"
+    # "FishScale_Dataset/yolov8s-FishScale"
+    # #--- Trained Models on the FishScale + Private_Dataset ---#
+    # "FishScale+Private_Dataset/yolov8s"
+    # "FishScale+Private_Dataset/yolov8s-p2"
+    # "FishScale+Private_Dataset/yolov8s-p2-SPD"
+    # "FishScale+Private_Dataset/yolov8s-p2-CBAM"
+    # "FishScale+Private_Dataset/yolov8s-FishScale"
+    # "FishScale+Private_Dataset/yolov8s-FishScale2"
+    # "FishScale+Private_Dataset/yolov8s-FishScale3"
+    #--- UIE ---#
+    "UIE/yolov8s-FishScale_FunieGAN(freeze)"
+    # "UIE/yolov8s-FishScale_FunieGAN"
+    # "UIE/yolov8s-FishScale_UIEDM (all)"
+    # "UIE/yolov8s-FishScale_UIEDM (freeze)"
 )    
-
 MODE_TYPES=('test')           # Default operational mode is 'test'. It can be 'test', 'train' or 'val'
 
 # ---- Parse Command-Line Arguments ----
@@ -64,8 +69,8 @@ for MODEL in "${MODELS[@]}"; do
   for MODE in "${MODE_TYPES[@]}"; do
     # ---- Execute the Training ----
     # $PYTHON_BIN $TEST_SCRIPT --model $MODEL --weights "yolov8s-FishScale3.pt" --kwargs batch=$BATCH_SIZE freeze=$FREEZE name="$MODEL-full" 
+    # $PYTHON_BIN $TEST_SCRIPT --model $MODEL --mode $MODE --source "data/fishscale_dataset/train/images/A000065_L.avi.139397.png"
     $PYTHON_BIN $TEST_SCRIPT --model $MODEL --mode $MODE
-    
     # ---- Check for Errors ----
     if [ $? -eq 0 ]; then
       echo ">>> Testing completed successfully for $MODEL with mode=$MODE."
@@ -75,4 +80,7 @@ for MODEL in "${MODELS[@]}"; do
   done
 done
 
-echo "All training runs completed."
+echo ">>> All training runs completed!"
+
+
+nohup "" > log.txt &

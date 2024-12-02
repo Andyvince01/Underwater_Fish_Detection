@@ -41,7 +41,7 @@ def test(model : str, weights : str, source : str, mode : str = None, **kwargs) 
     #--- Load the the weights ---#
     yolo = YOLO(weights)
                 
-    # Test the model
+    #--- Test the model ---#
     results = yolo.val(data=source, split=mode, **kwargs) if mode in ['train', 'test', 'val'] else yolo.predict(source=Image.open(source))
     
     #--- Draw the results on the image if mode is 'image' else return ---#
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Test the YOLO models on the FishScale dataset.')
     # Add the arguments
     parser.add_argument('--model', type=str, required=True, help='The path to the model to be tested.', default='YOLOv8s')
-    parser.add_argument('-w', '--weights', type=str, help='The weights of the model. Default is the best weights.', default='best.pt')
+    parser.add_argument('-w', '--weights', type=str, help='The weights of the model. Default is the best weights.', default='best.pt', choices=['best.pt', 'last.pt'])
     parser.add_argument('-s', '--source', type=str, help='The source to test the model on.')
     parser.add_argument('-i', '--image', type=str, help='The image to test the model on.')
     parser.add_argument('--mode', type=str, help='The mode to test the model in. Default is test.', choices=['image', 'train', 'test', 'val'])
@@ -104,12 +104,12 @@ if __name__ == '__main__':
 
     # Parse the arguments
     args = parser.parse_args()
-    
+
     #--- Modify the arguments ---#
     model = args.model if args.model is not None else 'YOLOv8'
     weights = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models', 'runs', 'detect/', args.model, 'weights', args.weights)
     source = args.source if args.source is not None else args.image if args.image is not None else FISHSCALE_DIR
-    mode = args.mode if args.mode is not None and args.image is not None else 'image' if args.image is not None else 'test'
+    mode = args.mode if args.mode is not None and args.image is None else 'image' if args.image is not None else 'test'
     kwargs = args.kwargs if args.kwargs is not None else {}
 
     #--- Test the model ---#
