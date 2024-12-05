@@ -71,7 +71,7 @@ The difference between the two models lies in additional data augmentation techn
 ### Integrating FUnIEGAN within YOLOv8s-FishScale backbone
 Islam et al. [^5] proposed an innovative, yet straightforward, conditional GAN-based model designed to enhance underwater images. This models centers on a generator network that learns to map the distorted image $X$ to an enhanced output $Y$ trough a dynamic, adversarial relationship discriminator network.
 
-The following models were trained for a reduced number of epochs (50 instead of 100) using the YOLOv8s-FishScale ☨ weights. As shown in the table, the **FUnIEGAN + YOLOv8s-Fishscale ☨** model, which was trained by freezing all encoder layers of FUnIEGAN except the last one and fine-tuning the remaining layers, achieved a slight improvement in F1-Score. All other performance metrics remained comparable to those of YOLOv8s-Fishscale ☨:
+The following models were trained for a reduced number of epochs (50 instead of 100) using the YOLOv8s-FishScale ☨ weights. As shown in the table, the **FUnIEGAN + YOLOv8s-Fishscale ☨** model, which was trained by freezing all encoder layers of FUnIEGAN except the last one and fine-tuning the remaining layers, achieved a slight improvement in precision, recall and f1-score.
 
 | Model                   | Precision ↑ | Recall ↑ | F1-Score ↑ | mAP(50) ↑ | mAP(50-95) ↑ | Parameters ↓ | Gflops ↓ |
 |-------------------------|-------------|----------|------------|-----------|--------------|--------------|----------|
