@@ -15,22 +15,22 @@ TEST_SCRIPT="test.py"
 BATCH_SIZES=(32)                                                        # Array of batch sizes to loop through
 MODELS=(
     #--- Trained Models on the FishScale_Dataset ---#
-    # "FishScale_Dataset/yolov8s"
-    # "FishScale_Dataset/yolov8s-p2"
-    # "FishScale_Dataset/yolov8s-p2-SPD"
-    # "FishScale_Dataset/yolov8s-p2-CBAM"
-    # "FishScale_Dataset/yolov8s-FishScale"
-    # #--- Trained Models on the FishScale + Private_Dataset ---#
-    # "FishScale+Private_Dataset/yolov8s"
-    # "FishScale+Private_Dataset/yolov8s-p2"
-    # "FishScale+Private_Dataset/yolov8s-p2-SPD"
-    # "FishScale+Private_Dataset/yolov8s-p2-CBAM"
-    # "FishScale+Private_Dataset/yolov8s-FishScale"
-    # "FishScale+Private_Dataset/yolov8s-FishScale2"
-    # "FishScale+Private_Dataset/yolov8s-FishScale3"
+    "FishScale_Dataset/yolov8s"
+    "FishScale_Dataset/yolov8s-p2"
+    "FishScale_Dataset/yolov8s-p2-SPD"
+    "FishScale_Dataset/yolov8s-p2-CBAM"
+    "FishScale_Dataset/yolov8s-FishScale"
+    #--- Trained Models on the FishScale + Private_Dataset ---#
+    "FishScale+Private_Dataset/yolov8s"
+    "FishScale+Private_Dataset/yolov8s-p2"
+    "FishScale+Private_Dataset/yolov8s-p2-SPD"
+    "FishScale+Private_Dataset/yolov8s-p2-CBAM"
+    "FishScale+Private_Dataset/yolov8s-FishScale"
+    "FishScale+Private_Dataset/yolov8s-FishScale2"
+    "FishScale+Private_Dataset/yolov8s-FishScale3"
     #--- UIE ---#
     "UIE/yolov8s-FishScale_FunieGAN(freeze)"
-    # "UIE/yolov8s-FishScale_FunieGAN"
+    "UIE/yolov8s-FishScale_FunieGAN"
     # "UIE/yolov8s-FishScale_UIEDM (all)"
     # "UIE/yolov8s-FishScale_UIEDM (freeze)"
 )    
