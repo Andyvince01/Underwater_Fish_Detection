@@ -18,6 +18,8 @@ This thesis presents a real-time system for detecting and tracking fish in under
 ![ezgif-1-a1147faba4](https://github.com/user-attachments/assets/f452674b-8533-4c17-9989-95ae326504ed)
 ![ezgif-1-a8ae202b0a](https://github.com/user-attachments/assets/4c821c68-dcb8-4479-99f8-51ec85ce88b5)
 
+To train new custom models, you can modify the **`train.py`** and **`train.sh`** scripts according to your specific requirements. After configuring these files, execute them to initiate the training process. To test all the trained models, ensure the appropriate permissions are granted and then run the **`test.sh`** script.
+
 ## 🎣 FishScale Dataset
 To train the `YOLO-FishScale` model,, a new comprehensive dataset was constructed. The **Fishscale Dataset** is an extensive collection of images and labels, compiled from three renowned fish datasets:
   -  **Deepfish** [^1]: This dataset comprises footage from 20 distinct underwater habitats, offering a diverse representation of underwater environments. This dataset was not originally intended for object detection tasks, which means it did not include bounding box annotations for fish. In the context of this project, the same dataset used by A.A. Muksit et al. [^4] was utilized. To adapt the DeepFish dataset for fish detection, A.A. Muksit et al. manually curated a subset of images, selecting those that exhibited different types of fish movement and posture across various habitats. From this selection process, they identified 4,505 positive images and then meticulously annotated a total of 15,463 ground truth bounding boxes within these images.
@@ -62,7 +64,7 @@ Fine-tuning the model with these merged weights led to an increase in performanc
 | Model                   | Precision ↑ | Recall ↑ | F1-Score ↑ | mAP(50) ↑ | mAP(50-95) ↑ | Parameters ↓ | Gflops ↓ |
 |-------------------------|-------------|----------|------------|-----------|--------------|--------------|----------|
 | YOLOv8s-Fishscale †     | 0.853       | 0.736    | 0.79       | 0.839     | 0.537        | 17,358,240   | 70.00    |
-| **YOLOv8s-Fishscale ☨** | **0.861**   |**0.738** | **0.795**  | **0.845**  | **0.542**   | 17,358,240   | 70.00    |
+| **YOLOv8s-Fishscale ☨** | **0.873**   |**0.732** | **0.796**  | **0.844**  | **0.540**   | 17,358,240   | 70.00    |
 
 The difference between the two models lies in additional data augmentation techniques employed to further enhance performance.
 
@@ -73,8 +75,8 @@ The following models were trained for a reduced number of epochs (50 instead of 
 
 | Model                   | Precision ↑ | Recall ↑ | F1-Score ↑ | mAP(50) ↑ | mAP(50-95) ↑ | Parameters ↓ | Gflops ↓ |
 |-------------------------|-------------|----------|------------|-----------|--------------|--------------|----------|
-| FUnIEGAN (freezed) + ☨  | 0.857       | 0.695    | 0.767       | 0.816     | 0.519       | 24,388,355  | 198.40    |
-| **FUnIEGAN + ☨**        | **0.867**   |**0.736** | **0.796**  | **0.843**  | **0.541**   | 24,388,355  | 198.40    |
+| FUnIEGAN (freezed) + ☨  | 0.858       | 0.693    | 0.767       | 0.811     | 0.515       | 24,388,355  | 198.40    |
+| **FUnIEGAN + ☨**        | **0.875**   |**0.735** | **0.799**  | **0.845**  | **0.541**   | 24,388,355  | 198.40    |
 
 
 [^1]: Saleh, Alzayat, Laradji, Issam H., Konovalov, Dmitry A., Bradley, Michael, Vazquez, David, Sheaves, Marcus, 2020. A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis. Sci. Rep. 10 (1), 1–10. [doi:10.53654/tangible.v5i1.110](https://doi.org/10.53654/tangible.v5i1.110).
