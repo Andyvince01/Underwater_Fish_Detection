@@ -1,5 +1,4 @@
 # 🐠 YOLO-FishScale - Underwater Fish Detection
-
 <meta name="google-site-verification" content="6ISQvm6lvQJIlH2c-6RwcQ9sOfcgRtzJnaAwRyUBeVo" />
 
 <div align="center">
