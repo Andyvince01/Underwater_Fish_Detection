@@ -1,5 +1,7 @@
 # 🐠 YOLO-FishScale - Underwater Fish Detection
 
+<meta name="google779d0d71305d4efc.html" content="...">
+
 <div align="center">
   <a href='https://huggingface.co/spaces/Andyvince01/Underwater_Fish_Detection'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-HF-yellow'></a> &ensp;
   <a href="https://andyvince01.github.io/YOLO-FishScale/"><img src="https://img.shields.io/static/v1?label=Official Website&message=Page&color=blue"></a> &ensp;
