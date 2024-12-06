@@ -1,6 +1,6 @@
 # 🐠 YOLO-FishScale - Underwater Fish Detection
 
-<meta name="google-site-verification" content="AoBusmsLmGQ1shCKzlw40UGqC1FghjbShizBbeDt5bg" />
+<meta name="google-site-verification" content="6ISQvm6lvQJIlH2c-6RwcQ9sOfcgRtzJnaAwRyUBeVo" />
 
 <div align="center">
   <a href='https://huggingface.co/spaces/Andyvince01/Underwater_Fish_Detection'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-HF-yellow'></a> &ensp;
