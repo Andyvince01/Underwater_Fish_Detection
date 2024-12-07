@@ -4,6 +4,7 @@
 <div align="center">
   <a href='https://huggingface.co/spaces/Andyvince01/Underwater_Fish_Detection'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-HF-yellow'></a> &ensp;
   <a href="https://andyvince01.github.io/YOLO-FishScale/"><img src="https://img.shields.io/static/v1?label=Official Website&message=Page&color=blue"></a> &ensp;
+  <a href="https://github.com/Andyvince01/YOLO-FishScale/"><img src="https://img.shields.io/static/v1?label=&message=Github Repository&color=181717&logo=GitHub&logoColor=FFFFFF"></a> &ensp;
 </div>
 
 Freshwater ecosystems are facing significant challenges due to the extinction of endemic species, often caused by the invasion of aggressive species in degraded habitats. Overfishing and unsustainable practices are further threatening fish populations, destabilizing aquatic environments. This crisis is rooted in the exponential growth of the human population, which intensifies environmental degradation. To address declining wild fish stocks, aquaculture has emerged as a vital solution, not only for food production but also for environmental conservation by restoring natural habitats and replenishing wild populations. In this context, deep learning techniques are revolutionizing aquaculture by enabling precise monitoring and management of aquatic environments. The ability to process and analyze large volumes of visual data in real-time helps in accurately detecting, tracking, and understanding fish behavior, which is crucial for both optimizing aquaculture practices and preserving natural ecosystems.
